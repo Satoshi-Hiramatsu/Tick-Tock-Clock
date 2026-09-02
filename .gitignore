@@ -1,0 +1,26 @@
+# 依存パッケージ
+node_modules/
+
+# ビルド成果物
+dist/
+build/
+out/
+
+# Cloudflare / Wrangler
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+
+# ログ・一時ファイル
+*.log
+npm-debug.log*
+.cache/
+tmp/
+
+# エディタ・OS
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
