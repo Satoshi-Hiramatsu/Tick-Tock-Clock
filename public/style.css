@@ -430,6 +430,93 @@ button {
   color: var(--c-backward-strong);
 }
 
+/* せんせいモード：時刻と分すうを直接入力して、決まった時間を再現する */
+.teach {
+  border: 2px solid var(--c-rule-2);
+  border-radius: var(--radius);
+  background: var(--c-surface);
+}
+
+.teach__summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-md);
+  font-weight: 700;
+  color: var(--c-ink-2);
+  cursor: pointer;
+  list-style: none;
+}
+
+.teach__summary::-webkit-details-marker {
+  display: none;
+}
+
+.teach__summary::before {
+  content: '▶';
+  font-size: 0.8em;
+}
+
+.teach[open] .teach__summary::before {
+  content: '▼';
+}
+
+.teach[open] .teach__summary {
+  border-bottom: 1px solid var(--c-rule);
+  color: var(--c-ink);
+}
+
+.teach__body {
+  display: grid;
+  gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+.teach__hint,
+.teach__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--c-ink-2);
+}
+
+.teach__block {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border: 1px solid var(--c-rule);
+  border-radius: var(--radius);
+}
+
+.teach__label {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+
+.teach__dir {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.teach__error {
+  margin: 0;
+  font-weight: 700;
+  color: var(--c-backward-strong);
+}
+
+@media (min-width: 720px) {
+  .teach__body {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .teach__hint {
+    grid-column: 1 / -1;
+  }
+}
+
 .learn__options {
   display: flex;
   flex-wrap: wrap;
@@ -1128,12 +1215,13 @@ rt {
 
 .numpad__ampm {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--tap-gap);
 }
 
 .numpad__fields {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-sm);
 }
@@ -1141,8 +1229,11 @@ rt {
 .numpad__field {
   display: inline-flex;
   align-items: baseline;
+  justify-content: center;
   gap: 0.2em;
-  min-width: 5.5em;
+  /* 枠（最大320px）の中で「時」「分」が横に並ぶよう、等分して縮む */
+  flex: 1 1 0;
+  min-width: 0;
   min-height: 64px;
   padding: 0 var(--space-sm);
   border: 2px solid var(--c-rule-2);
@@ -1172,11 +1263,13 @@ rt {
 
 .numpad__keys {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0,1fr) と padding 0 で、320px 幅の枠内に必ず収める（まなぶ画面の2段組みでも溢れない） */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--tap-gap);
 }
 
 .numpad__key {
+  padding: 0;
   font-size: var(--text-xl);
   font-family: var(--font-num);
 }

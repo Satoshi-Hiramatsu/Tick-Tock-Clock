@@ -2,7 +2,7 @@
 // 毎フレーム onFrame(elapsed) を呼び、描画側はこの1値からすべてを導出する。
 // 節目（12通過 carry / 1周 lap / 5分 tick）は onEvent で通知する。
 
-const RATES = { slow: 10, normal: 30, instant: Infinity }; // 分/秒
+const RATES = { slow: 2, normal: 10, instant: Infinity }; // 分/秒（ゆっくり=1秒で2分、ふつう=1秒で10分）
 const STEP_MINUTES = 10; // 動きをへらす設定のコマ送り幅
 const STEP_INTERVAL = 450; // ms
 

@@ -50,10 +50,10 @@ export function createClock(container, options = {}) {
 
   el('circle', { cx: CENTER, cy: CENTER, r: R.face, class: 'clock__face' }, svg);
 
-  // 描画順：帯 → 時針の弧 → 目印 → 目盛り → 数字 → 針 → 中心
+  // 描画順：帯 → 時針の弧 → 目盛り → 数字 → 針 → 中心 → 目印
+  // （目印の 10・20・30… は針に隠れないよう最後に描く）
   const gBands = el('g', { class: 'clock__bands' }, svg);
   const gHourArc = el('g', { class: 'clock__hour-arc' }, svg);
-  const gMarkers = el('g', { class: 'clock__markers' }, svg);
   const gTicks = el('g', { class: 'clock__ticks' }, svg);
   const gNumbers = el('g', { class: 'clock__numbers' }, svg);
 
@@ -120,6 +120,7 @@ export function createClock(container, options = {}) {
     gHands,
   );
   el('circle', { cx: CENTER, cy: CENTER, r: R.cap, class: 'clock__cap' }, svg);
+  const gMarkers = el('g', { class: 'clock__markers' }, svg);
 
   container.replaceChildren(svg);
 

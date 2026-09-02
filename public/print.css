@@ -182,6 +182,10 @@
   line-height: 1.75;
 }
 
+.sheet--n10 .q {
+  padding: 1mm 0;
+}
+
 .sheet--n10 .q__text {
   font-size: 9.5pt;
   line-height: 1.6;
@@ -190,21 +194,23 @@
 .q__row {
   display: flex;
   align-items: center;
-  gap: 4mm;
+  /* 答えの欄が入りきらないときは時計の下へ折り返す（右端で切れないようにする） */
+  flex-wrap: wrap;
+  gap: 1mm 2mm;
   min-height: 0;
 }
 
 .q__clock {
   flex: 0 0 auto;
-  width: 40mm;
+  width: 36mm;
 }
 
 .sheet--n6 .q__clock {
-  width: 50mm;
+  width: 46mm;
 }
 
 .sheet--n10 .q__clock {
-  width: 30mm;
+  width: 27mm;
 }
 
 .q--p9 .q__row {
@@ -225,7 +231,7 @@
 .blank {
   display: inline-block;
   min-width: 12mm;
-  margin: 0 1mm;
+  margin: 0 0.5mm;
   border-bottom: 0.4mm solid #111;
   text-align: center;
   color: #c62828;

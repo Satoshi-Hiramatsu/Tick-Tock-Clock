@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "readme": "README.md",
+  "start": {
+    "command": "npm start",
+    "readyUrl": "http://127.0.0.1:8787",
+    "timeoutSeconds": 60
+  },
+  "screenshots": [
+    {
+      "id": "learn-desktop",
+      "path": "docs/screenshots/learn-desktop.png",
+      "url": "http://127.0.0.1:8787/#learn",
+      "alt": "まなぶ画面。午後3時10分から80分すすめた状態で、時計の帯・デジタル時計・経過分カウンター・数直線・時間ブロック・式が並んでいる",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "fullPage": false,
+      "waitFor": ".learn .clock",
+      "steps": [
+        {
+          "action": "click",
+          "target": "じこくを きめて うごかす（せんせいモード）"
+        },
+        {
+          "action": "click",
+          "target": "午後"
+        },
+        {
+          "action": "click",
+          "target": "テンキー 3 → 1 → 0（午後3時10分）",
+          "selector": ".teach__pad--time [data-key]"
+        },
+        {
+          "action": "click",
+          "target": "この じこくに する"
+        },
+        {
+          "action": "click",
+          "target": "はやさ いっき"
+        },
+        {
+          "action": "click",
+          "target": "テンキー 8 → 0（80分）",
+          "selector": ".teach__pad--minutes [data-key]"
+        },
+        {
+          "action": "click",
+          "target": "うごかす"
+        },
+        {
+          "action": "click",
+          "target": "はやさ ふつう"
+        },
+        {
+          "action": "click",
+          "target": "じこくを きめて うごかす（せんせいモード）を閉じる"
+        },
+        {
+          "action": "wait",
+          "milliseconds": 500
+        }
+      ]
+    },
+    {
+      "id": "learn-teach-mode",
+      "path": "docs/screenshots/learn-teach-mode.png",
+      "url": "http://127.0.0.1:8787/#learn",
+      "alt": "まなぶ画面のせんせいモード。テンキーで午前7時5分を指定し、もどる90分を入力したところ",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "fullPage": true,
+      "waitFor": ".teach",
+      "steps": [
+        {
+          "action": "click",
+          "target": "じこくを きめて うごかす（せんせいモード）"
+        },
+        {
+          "action": "click",
+          "target": "午前"
+        },
+        {
+          "action": "click",
+          "target": "テンキー 7 → 0 → 5（午前7時5分）",
+          "selector": ".teach__pad--time [data-key]"
+        },
+        {
+          "action": "click",
+          "target": "この じこくに する"
+        },
+        {
+          "action": "click",
+          "target": "もどる（〜分前）"
+        },
+        {
+          "action": "click",
+          "target": "テンキー 9 → 0（90分）",
+          "selector": ".teach__pad--minutes [data-key]"
+        },
+        {
+          "action": "wait",
+          "milliseconds": 300
+        }
+      ]
+    },
+    {
+      "id": "practice-question",
+      "path": "docs/screenshots/practice-question.png",
+      "url": "http://127.0.0.1:8787/#practice?d=2&p=P3,P4,P5&mode=choice&seed=20260903",
+      "alt": "れんしゅう画面。「〜分後」の問題に4つの選択肢で答えるところ",
+      "viewport": {
+        "width": 1000,
+        "height": 640
+      },
+      "fullPage": false,
+      "waitFor": ".quiz",
+      "steps": [
+        {
+          "action": "wait",
+          "milliseconds": 400
+        }
+      ]
+    },
+    {
+      "id": "practice-explain",
+      "path": "docs/screenshots/practice-explain.png",
+      "url": "http://127.0.0.1:8787/#practice?d=2&p=P3,P4,P5&mode=choice&seed=20260903",
+      "alt": "れんしゅうの解説画面。答えたあとに針の動きと式で解き方を確認できる",
+      "viewport": {
+        "width": 1000,
+        "height": 900
+      },
+      "fullPage": true,
+      "waitFor": ".quiz",
+      "steps": [
+        {
+          "action": "click",
+          "target": "正解の選択肢「12時50分」",
+          "selector": ".btn--choice"
+        },
+        {
+          "action": "wait",
+          "milliseconds": 7000
+        }
+      ]
+    },
+    {
+      "id": "print-preview",
+      "path": "docs/screenshots/print-preview.png",
+      "url": "http://127.0.0.1:8787/#print?d=2&p=P1,P2,P3,P4,P5&n=8&pages=1&out=both&name=1&seed=20260903",
+      "alt": "プリント画面。A4に8問のテストと解答ページのプレビューが出ている",
+      "viewport": {
+        "width": 1600,
+        "height": 1080
+      },
+      "fullPage": false,
+      "waitFor": ".print__sheets .sheet",
+      "steps": [
+        {
+          "action": "wait",
+          "milliseconds": 800
+        },
+        {
+          "action": "resize",
+          "target": "プレビューの拡大率を再計算させるため 1px 縮めて戻す",
+          "value": "1600x1080"
+        },
+        {
+          "action": "wait",
+          "milliseconds": 600
+        }
+      ]
+    },
+    {
+      "id": "home-mobile",
+      "path": "docs/screenshots/home-mobile.png",
+      "url": "http://127.0.0.1:8787/#home",
+      "alt": "スマートフォンで開いたホーム画面。今の時刻の時計と、まなぶ・れんしゅう・プリント・せっていの4つの入口",
+      "viewport": {
+        "width": 390,
+        "height": 720
+      },
+      "fullPage": false,
+      "waitFor": ".home__clock-svg svg",
+      "steps": [
+        {
+          "action": "freezeClock",
+          "value": "2026-04-15T15:10:00"
+        },
+        {
+          "action": "wait",
+          "milliseconds": 400
+        }
+      ]
+    }
+  ],
+  "checks": [
+    "npm test"
+  ],
+  "deviceScaleFactor": 2
+}

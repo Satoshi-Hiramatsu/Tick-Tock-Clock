@@ -82,10 +82,19 @@ export function createNumpad(container, { kind, ampm = false }) {
         values[active] = values[active].slice(0, -1);
       }
     } else {
-      const next = values[active] + key.dataset.key;
+      const digit = key.dataset.key;
+      const next = values[active] + digit;
       if (Number(next) <= f.max && next.length <= f.digits) {
         values[active] = next;
         advanceIfFull();
+      } else {
+        // 「7」の次に「0」など、その欄に入らない数は次の欄へ送る（7時05分を 7・0・5 で入力できる）。
+        const nextField = fields[fields.indexOf(f) + 1];
+        if (values[active] !== '' && nextField && values[nextField.key] === '' && Number(digit) <= nextField.max) {
+          active = nextField.key;
+          values[active] = digit;
+          advanceIfFull();
+        }
       }
     }
     render();
