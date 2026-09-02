@@ -48,4 +48,11 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
+  // 新しい Service Worker が有効になったら一度だけ再読み込みし、古いキャッシュの画面を残さない。
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloading || !navigator.serviceWorker.controller) return;
+    reloading = true;
+    location.reload();
+  });
 }
