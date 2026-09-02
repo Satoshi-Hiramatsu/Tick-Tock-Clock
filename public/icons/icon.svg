@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0d47a1"/>
+  <circle cx="256" cy="256" r="190" fill="#ffffff" stroke="#1f1d1a" stroke-width="10"/>
+  <g stroke="#1f1d1a" stroke-width="10" stroke-linecap="round">
+    <line x1="256" y1="86" x2="256" y2="112"/>
+    <line x1="426" y1="256" x2="400" y2="256"/>
+    <line x1="256" y1="426" x2="256" y2="400"/>
+    <line x1="86" y1="256" x2="112" y2="256"/>
+  </g>
+  <g stroke="#1f1d1a" stroke-width="6" stroke-linecap="round" opacity="0.7">
+    <line x1="341" y1="108.8" x2="332" y2="124.4"/>
+    <line x1="403.2" y1="171" x2="387.6" y2="180"/>
+    <line x1="403.2" y1="341" x2="387.6" y2="332"/>
+    <line x1="341" y1="403.2" x2="332" y2="387.6"/>
+    <line x1="171" y1="403.2" x2="180" y2="387.6"/>
+    <line x1="108.8" y1="341" x2="124.4" y2="332"/>
+    <line x1="108.8" y1="171" x2="124.4" y2="180"/>
+    <line x1="171" y1="108.8" x2="180" y2="124.4"/>
+  </g>
+  <path d="M256 256 L256 116 A140 140 0 0 1 377.2 186 Z" fill="#bbdefb" stroke="#1976d2" stroke-width="4"/>
+  <line x1="256" y1="276" x2="256" y2="150" stroke="#b71c1c" stroke-width="22" stroke-linecap="round"/>
+  <line x1="256" y1="280" x2="377" y2="186" stroke="#0d47a1" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="14" fill="#1f1d1a"/>
+</svg>

@@ -1,0 +1,334 @@
+/* ===== プリント画面（設定・プレビュー） ===== */
+.print {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) 1fr;
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.print__form {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.print__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+}
+
+.setup__patterns--compact {
+  grid-template-columns: 1fr;
+}
+
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: var(--tap-min);
+  font-weight: 700;
+}
+
+.field select {
+  min-height: 44px;
+  padding: 0 0.5em;
+  font: inherit;
+  font-size: var(--text-base);
+  border: 2px solid var(--c-rule-2);
+  border-radius: var(--radius-sm);
+  background: var(--c-surface);
+}
+
+.print__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tap-gap);
+}
+
+.print__preview {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.print__sheets {
+  --scale: 1;
+  transform: scale(var(--scale));
+  transform-origin: top left;
+  display: grid;
+  gap: 12mm;
+  width: 210mm;
+}
+
+.print__toolbar {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .print {
+    grid-template-columns: 1fr;
+  }
+
+  .print__buttons [data-action='print'] {
+    display: none;
+  }
+
+  .print__toolbar {
+    display: flex;
+    justify-content: center;
+    position: sticky;
+    bottom: 0;
+    padding: var(--space-sm);
+    background: var(--c-paper);
+    border-top: 1px solid var(--c-rule);
+  }
+}
+
+/* ===== A4 シート ===== */
+.sheet {
+  box-sizing: border-box;
+  width: 210mm;
+  height: 297mm;
+  padding: 15mm;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-family: var(--font-body);
+  display: grid;
+  grid-template-rows: 25mm 1fr;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.sheet__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 0.5mm solid #111;
+  padding-bottom: 2mm;
+}
+
+.sheet__title {
+  margin: 0;
+  font-size: 18pt;
+}
+
+.sheet__title small {
+  font-size: 11pt;
+  font-weight: 400;
+  margin-left: 2mm;
+}
+
+.sheet__fields {
+  display: flex;
+  align-items: flex-end;
+  gap: 2mm;
+  font-size: 10pt;
+}
+
+.sheet__line {
+  display: inline-block;
+  width: 40mm;
+  border-bottom: 0.3mm solid #111;
+  height: 7mm;
+}
+
+.sheet__line--short {
+  width: 22mm;
+}
+
+.sheet__grid {
+  margin: 0;
+  padding: 4mm 0 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 87mm 87mm;
+  column-gap: 6mm;
+  align-content: start;
+}
+
+.sheet--n6 .sheet__grid {
+  grid-auto-rows: 80mm;
+}
+
+.sheet--n8 .sheet__grid {
+  grid-auto-rows: 60mm;
+}
+
+.sheet--n10 .sheet__grid {
+  grid-auto-rows: 48mm;
+}
+
+.q {
+  display: grid;
+  grid-template-columns: 8mm 1fr;
+  grid-template-rows: auto 1fr;
+  column-gap: 1.5mm;
+  row-gap: 1mm;
+  align-items: start;
+  padding: 1.5mm 0;
+  border-bottom: 0.2mm dotted #999;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.q__num {
+  grid-row: 1 / span 2;
+  font-size: 13pt;
+  font-weight: 700;
+}
+
+.q__text {
+  margin: 0;
+  font-size: 10.5pt;
+  line-height: 1.75;
+}
+
+.sheet--n10 .q__text {
+  font-size: 9.5pt;
+  line-height: 1.6;
+}
+
+.q__row {
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  min-height: 0;
+}
+
+.q__clock {
+  flex: 0 0 auto;
+  width: 40mm;
+}
+
+.sheet--n6 .q__clock {
+  width: 50mm;
+}
+
+.sheet--n10 .q__clock {
+  width: 30mm;
+}
+
+.q--p9 .q__row {
+  min-height: 14mm;
+}
+
+.q__answer {
+  margin: 0;
+  font-size: 12pt;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sheet--n10 .q__answer {
+  font-size: 11pt;
+}
+
+.blank {
+  display: inline-block;
+  min-width: 12mm;
+  margin: 0 1mm;
+  border-bottom: 0.4mm solid #111;
+  text-align: center;
+  color: #c62828;
+}
+
+.blank.w3 {
+  min-width: 18mm;
+}
+
+.ampm {
+  margin-right: 1.5mm;
+  font-weight: 400;
+}
+
+.ampm b {
+  color: #c62828;
+}
+
+.q__filled {
+  color: #c62828;
+}
+
+/* 印刷用の時計：線を太く、帯はグレー＋斜線 */
+.clock--print .clock__face {
+  stroke-width: 2.5;
+}
+
+.clock--print .clock__hand--hour {
+  stroke-width: 7;
+}
+
+.clock--print .clock__hand--minute {
+  stroke-width: 4;
+}
+
+.clock--print .clock__band--partial {
+  fill: #d0d0d0;
+  stroke: #777;
+}
+
+.clock--print .clock__band--full {
+  stroke: #9a9a9a;
+}
+
+.clock--print .clock__hour-arc-path {
+  fill: #b71c1c;
+  opacity: 0.5;
+}
+
+.clock--print .clock__hand--ghost {
+  opacity: 0.35;
+}
+
+.clock--print .clock__lap-label,
+.clock--print .clock__glow {
+  display: none;
+}
+
+/* ===== 印刷 ===== */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff;
+  }
+
+  .topbar,
+  .print__form,
+  .print__toolbar {
+    display: none !important;
+  }
+
+  .app {
+    max-width: none;
+    padding: 0;
+  }
+
+  .print {
+    display: block;
+  }
+
+  .print__preview {
+    overflow: visible;
+  }
+
+  .print__sheets {
+    transform: none !important;
+    height: auto !important;
+    gap: 0;
+  }
+
+  .sheet {
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+}

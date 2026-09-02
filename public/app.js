@@ -1,29 +1,22 @@
 // ハッシュルーターと画面の切り替え。
 
 import { loadSettings } from './lib/storage.js';
+import { applySettings } from './lib/apply-settings.js';
 import { renderHome } from './screens/home.js';
 import { renderLearn } from './screens/learn.js';
+import { renderPractice } from './screens/practice.js';
+import { renderPrint } from './screens/print.js';
+import { renderSettings } from './screens/settings.js';
 
 const settings = loadSettings();
 const root = document.getElementById('app');
 
-function placeholder(title) {
-  return (container) => {
-    container.innerHTML = `
-      <section class="placeholder">
-        <h1 class="placeholder__title">${title}</h1>
-        <p>じゅんびちゅう です。</p>
-        <a class="btn btn--ghost" href="#home">ホームへ もどる</a>
-      </section>`;
-  };
-}
-
 const routes = {
   home: renderHome,
   learn: renderLearn,
-  practice: placeholder('れんしゅう'),
-  print: placeholder('プリント'),
-  settings: placeholder('せってい'),
+  practice: renderPractice,
+  print: renderPrint,
+  settings: renderSettings,
 };
 
 let cleanup = null;
@@ -47,6 +40,12 @@ function render() {
   window.scrollTo(0, 0);
 }
 
-document.documentElement.dataset.font = settings.font;
+applySettings(settings);
 window.addEventListener('hashchange', render);
 render();
+
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}

@@ -90,6 +90,19 @@ export function createClock(container, options = {}) {
 
   const lapLabel = text('', { x: CENTER, y: CENTER + 13, class: 'clock__lap-label' }, svg);
 
+  // うすい針（P7 の終わりの時刻など、もう1つの時刻を示す）
+  const gGhost = el('g', { class: 'clock__ghost', visibility: 'hidden' }, svg);
+  const ghostHour = el(
+    'line',
+    { x1: CENTER, y1: CENTER + 10, x2: CENTER, y2: CENTER - R.hourHand, class: 'clock__hand clock__hand--hour clock__hand--ghost' },
+    gGhost,
+  );
+  const ghostMinute = el(
+    'line',
+    { x1: CENTER, y1: CENTER + 12, x2: CENTER, y2: CENTER - R.minuteHand, class: 'clock__hand clock__hand--minute clock__hand--ghost' },
+    gGhost,
+  );
+
   const gHands = el('g', { class: 'clock__hands' }, svg);
   const hourHand = el(
     'line',
@@ -232,5 +245,113 @@ export function createClock(container, options = {}) {
     applyOptions();
   }
 
-  return { svg, setTime, setMovement, clearMovement, flashTwelve, setLapLabel, setOptions };
+  /** もう1つの時刻をうすい針で示す。null で消す。 */
+  function setGhostTime(time) {
+    if (!time) {
+      gGhost.setAttribute('visibility', 'hidden');
+      return;
+    }
+    gGhost.setAttribute('visibility', 'visible');
+    rotate(ghostHour, hourAngle(time.h, time.m));
+    rotate(ghostMinute, minuteAngle(time.m));
+  }
+
+  /** 針を隠す（印刷の「はりをかく」問題）。 */
+  function showHands(visible) {
+    gHands.setAttribute('visibility', visible ? 'visible' : 'hidden');
+  }
+
+  /**
+   * 分針のドラッグ操作。時針は連動し、12をまたぐと時が進む・戻る。
+   * @param {{ step?: number, time: {h, m}, onChange?: (time) => void, onEnd?: (time) => void }} p
+   * @returns {{ setTime: (time) => void, dispose: () => void }}
+   */
+  function enableDrag({ step = 1, time, onChange, onEnd }) {
+    let current = { ...time };
+    let dragging = false;
+    let enabled = true;
+
+    const minuteAt = (evt) => {
+      const pt = svg.createSVGPoint();
+      pt.x = evt.clientX;
+      pt.y = evt.clientY;
+      const p = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const angle = (Math.atan2(p.x - CENTER, -(p.y - CENTER)) * 180) / Math.PI;
+      const minute = Math.round((((angle + 360) % 360) / 6) / step) * step;
+      return minute % 60;
+    };
+
+    const update = (evt) => {
+      const m = minuteAt(evt);
+      if (m === current.m) return;
+      // 最短の回転量（−30〜+30分）で判定し、速いスワイプでも 12 の通過を取りこぼさない
+      const d = ((m - current.m + 90) % 60) - 30;
+      let h = current.h;
+      if (current.m + d >= 60) h = (h + 1) % 24;
+      else if (current.m + d < 0) h = (h + 23) % 24;
+      current = { h, m };
+      setTime(current);
+      onChange?.(current);
+    };
+
+    const onDown = (evt) => {
+      if (!enabled) return;
+      dragging = true;
+      svg.setPointerCapture?.(evt.pointerId);
+      svg.classList.add('is-dragging');
+      update(evt);
+      evt.preventDefault();
+    };
+    const onMove = (evt) => {
+      if (dragging) update(evt);
+    };
+    const onUp = (evt) => {
+      if (!dragging) return;
+      dragging = false;
+      svg.classList.remove('is-dragging');
+      svg.releasePointerCapture?.(evt.pointerId);
+      onEnd?.(current);
+    };
+
+    svg.classList.add('clock--draggable');
+    svg.addEventListener('pointerdown', onDown);
+    svg.addEventListener('pointermove', onMove);
+    svg.addEventListener('pointerup', onUp);
+    svg.addEventListener('pointercancel', onUp);
+
+    return {
+      setTime(t) {
+        current = { ...t };
+        setTime(current);
+      },
+      get time() {
+        return { ...current };
+      },
+      /** false の間はドラッグを受け付けない（アニメーション中など）。 */
+      setEnabled(value) {
+        enabled = value;
+        svg.classList.toggle('clock--draggable', value);
+      },
+      dispose() {
+        svg.classList.remove('clock--draggable', 'is-dragging');
+        svg.removeEventListener('pointerdown', onDown);
+        svg.removeEventListener('pointermove', onMove);
+        svg.removeEventListener('pointerup', onUp);
+        svg.removeEventListener('pointercancel', onUp);
+      },
+    };
+  }
+
+  return {
+    svg,
+    setTime,
+    setMovement,
+    clearMovement,
+    flashTwelve,
+    setLapLabel,
+    setOptions,
+    setGhostTime,
+    showHands,
+    enableDrag,
+  };
 }

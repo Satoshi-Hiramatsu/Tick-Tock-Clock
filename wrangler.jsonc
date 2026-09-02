@@ -1,10 +1,9 @@
 {
   "name": "tick-tock-clock",
   "main": "src/worker.js",
-  // 公開時（Sprint 6）に有効化する
-  // "routes": [
-  //   { "pattern": "tick-tock-clock.molkz.com", "custom_domain": true }
-  // ],
+  "routes": [
+    { "pattern": "tick-tock-clock.molkz.com", "custom_domain": true }
+  ],
   "compatibility_date": "2026-09-01",
   "assets": {
     "directory": "./public",

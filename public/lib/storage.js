@@ -48,3 +48,47 @@ export function loadSettings() {
 export function saveSettings(settings) {
   safeSet(SETTINGS_KEY, JSON.stringify(settings));
 }
+
+const HISTORY_KEY = 'ttc.history';
+const HISTORY_MAX = 200;
+
+/** 練習1セットの結果を保存する。 */
+export function recordResult(result) {
+  const list = listHistory(HISTORY_MAX - 1);
+  list.unshift({ at: Date.now(), ...result });
+  safeSet(HISTORY_KEY, JSON.stringify(list));
+}
+
+export function clearHistory() {
+  try {
+    globalThis.localStorage?.removeItem(HISTORY_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function listHistory(limit = 50) {
+  const raw = safeGet(HISTORY_KEY);
+  if (!raw) return [];
+  try {
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list.slice(0, limit) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** パターン別・誤答タグ別の集計。 */
+export function summarize() {
+  const byPattern = {};
+  const byTag = {};
+  for (const r of listHistory(HISTORY_MAX)) {
+    for (const [pattern, v] of Object.entries(r.byPattern || {})) {
+      byPattern[pattern] ??= { correct: 0, total: 0 };
+      byPattern[pattern].correct += v.correct;
+      byPattern[pattern].total += v.total;
+    }
+    for (const [tag, n] of Object.entries(r.wrongTags || {})) byTag[tag] = (byTag[tag] || 0) + n;
+  }
+  return { byPattern, byTag };
+}
