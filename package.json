@@ -1,0 +1,26 @@
+{
+  "name": "tick-tock-clock",
+  "version": "0.1.0",
+  "description": "小学2年生向け アナログ時計・時刻と時間の学習アプリ（Cloudflare Workers）",
+  "private": true,
+  "type": "module",
+  "main": "src/worker.js",
+  "scripts": {
+    "start": "wrangler dev",
+    "dev": "wrangler dev",
+    "test": "node --test \"tests/*.test.mjs\"",
+    "deploy": "wrangler deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Satoshi-Hiramatsu/Tick-Tock-Clock.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "author": "Satoshi Hiramatsu",
+  "license": "ISC",
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

@@ -1,0 +1,538 @@
+/* ===== 基本 ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--c-focus);
+  outline-offset: 2px;
+}
+
+/* ===== ヘッダー ===== */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-rule);
+}
+
+.topbar__title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.topbar__nav {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.topbar__nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-sm);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.topbar__nav a.is-active {
+  background: var(--c-forward-weak);
+  color: var(--c-forward-strong);
+}
+
+@media (max-width: 560px) {
+  .topbar__nav {
+    display: none;
+  }
+}
+
+/* ===== 共通部品 ===== */
+.app {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-md);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25em;
+  min-height: var(--tap-min);
+  min-width: var(--tap-min);
+  padding: 0 var(--space-md);
+  border: 2px solid var(--c-ink);
+  border-radius: var(--radius);
+  background: var(--c-surface);
+  font-size: var(--text-md);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 2px 0 var(--c-shadow);
+  transition: transform var(--dur-short) var(--ease-out), background var(--dur-short);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.btn--ghost {
+  border-color: var(--c-rule-2);
+  color: var(--c-ink-2);
+  box-shadow: none;
+}
+
+.btn small {
+  font-size: 0.7em;
+  font-weight: 700;
+}
+
+/* ===== 時計（SVG） ===== */
+.clock {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-family: var(--font-num);
+  --band: var(--c-forward);
+  --band-weak: var(--c-forward-weak);
+  --band-strong: var(--c-forward-strong);
+}
+
+.clock.is-backward {
+  --band: var(--c-backward);
+  --band-weak: var(--c-backward-weak);
+  --band-strong: var(--c-backward-strong);
+}
+
+.clock__face {
+  fill: var(--c-surface);
+  stroke: var(--c-ink);
+  stroke-width: 2;
+}
+
+.clock__tick {
+  stroke: var(--c-ink);
+  stroke-width: 1;
+}
+
+.clock__tick--five {
+  stroke-width: 2.5;
+}
+
+.clock__num-hour {
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--c-hour);
+}
+
+.clock__num-minutes text {
+  font-size: 6.5px;
+  font-weight: 700;
+  fill: var(--c-minute);
+}
+
+.clock__glow {
+  fill: var(--c-mark);
+  opacity: 0;
+  transition: opacity 150ms ease-out;
+}
+
+.clock__glow.is-on {
+  opacity: 0.85;
+}
+
+.clock__hand {
+  stroke-linecap: round;
+}
+
+.clock__hand--hour {
+  stroke: var(--c-hour);
+  stroke-width: 6;
+}
+
+.clock__hand--minute {
+  stroke: var(--c-minute);
+  stroke-width: 4;
+}
+
+.clock__hand--second {
+  stroke: var(--c-ink-2);
+  stroke-width: 1.5;
+}
+
+.clock__cap {
+  fill: var(--c-ink);
+}
+
+.clock__band--partial {
+  fill: var(--band-weak);
+  stroke: var(--band);
+  stroke-width: 0.8;
+}
+
+.clock__band--full {
+  fill: none;
+  stroke: var(--band-strong);
+}
+
+.clock.is-backward .clock__band--partial {
+  stroke-dasharray: 2 1.5;
+}
+
+.clock__hour-arc-path {
+  fill: var(--c-hour);
+  opacity: 0.6;
+}
+
+.clock__marker circle {
+  fill: var(--c-surface);
+  stroke: var(--band-strong);
+  stroke-width: 0.6;
+}
+
+.clock__marker text {
+  font-size: 5.6px;
+  font-weight: 700;
+  fill: var(--c-ink);
+}
+
+.clock__lap-label {
+  font-size: 7px;
+  font-weight: 700;
+  fill: var(--band-strong);
+  /* 針と重なっても読めるよう白いふちどりを付ける */
+  paint-order: stroke;
+  stroke: var(--c-surface);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+}
+
+/* ===== ホーム ===== */
+.home {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.home__clock {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-xs);
+}
+
+.home__clock-svg {
+  width: min(48vw, 220px);
+}
+
+.home__now {
+  margin: 0;
+  color: var(--c-ink-2);
+  font-weight: 700;
+}
+
+.home__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--tap-gap);
+}
+
+.card {
+  display: grid;
+  gap: 0.25rem;
+  min-height: 120px;
+  padding: var(--space-md);
+  border: 2px solid var(--c-ink);
+  border-radius: var(--radius);
+  background: var(--c-surface);
+  text-decoration: none;
+  box-shadow: 0 3px 0 var(--c-shadow);
+}
+
+.card__title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.card__desc {
+  color: var(--c-ink-2);
+}
+
+.card--learn {
+  border-color: var(--c-forward-strong);
+}
+
+.card--learn .card__title {
+  color: var(--c-forward-strong);
+}
+
+.card--practice {
+  border-color: var(--c-correct);
+}
+
+.card--practice .card__title {
+  color: var(--c-correct);
+}
+
+/* ===== まなぶ ===== */
+.learn {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.learn__stage {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-md);
+}
+
+.learn__clock {
+  width: min(70vw, 360px);
+  min-width: 240px;
+}
+
+.learn__readout {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-xs);
+  width: 100%;
+}
+
+.digital {
+  font-family: var(--font-num);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.digital__prefix {
+  font-size: 0.5em;
+  margin-right: 0.15em;
+}
+
+.digital__h {
+  display: inline-block;
+  color: var(--c-hour);
+}
+
+.digital__m {
+  display: inline-block;
+  color: var(--c-minute);
+}
+
+.digital__unit {
+  font-size: 0.55em;
+  margin: 0 0.1em;
+}
+
+.counter {
+  display: grid;
+  justify-items: center;
+  gap: 0.15rem;
+  padding: var(--space-xs) var(--space-lg);
+  border-radius: var(--radius);
+  background: var(--c-forward-weak);
+  color: var(--c-forward-strong);
+  font-size: var(--text-md);
+  font-weight: 700;
+  min-width: 16rem;
+}
+
+.counter.is-backward {
+  background: var(--c-backward-weak);
+  color: var(--c-backward-strong);
+}
+
+.counter__main {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35em;
+}
+
+.counter__dir {
+  font-size: 1.3em;
+}
+
+.counter__n {
+  display: inline-block;
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+  min-width: 2ch;
+  text-align: right;
+}
+
+.counter__breakdown {
+  display: inline-block;
+  font-size: var(--text-md);
+}
+
+.learn__controls {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.btn-row {
+  display: grid;
+  grid-template-columns: auto repeat(4, 1fr);
+  align-items: center;
+  gap: var(--tap-gap);
+}
+
+.btn-row__title {
+  font-weight: 700;
+  font-size: var(--text-md);
+  white-space: nowrap;
+  min-width: 5.5em;
+}
+
+.btn-row--forward .btn-row__title {
+  color: var(--c-forward-strong);
+}
+
+.btn-row--forward .btn--delta {
+  border-color: var(--c-forward-strong);
+  color: var(--c-forward-strong);
+}
+
+.btn-row--backward .btn-row__title {
+  color: var(--c-backward-strong);
+}
+
+.btn-row--backward .btn--delta {
+  border-color: var(--c-backward-strong);
+  color: var(--c-backward-strong);
+}
+
+.learn__options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.speed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-xs);
+  margin: 0;
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid var(--c-rule);
+  border-radius: var(--radius);
+}
+
+.speed__item span {
+  white-space: nowrap;
+}
+
+.speed legend {
+  padding: 0 0.3em;
+  font-weight: 700;
+  color: var(--c-ink-2);
+}
+
+.speed__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  min-height: 44px;
+  padding: 0 var(--space-xs);
+  cursor: pointer;
+}
+
+.speed__item input {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+@media (max-width: 560px) {
+  .btn-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .btn-row__title {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .digital {
+    font-size: var(--text-2xl);
+  }
+}
+
+/* ===== 準備中 ===== */
+.placeholder {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-md);
+  padding: var(--space-lg) 0;
+}
+
+.placeholder__title {
+  margin: 0;
+  font-size: var(--text-2xl);
+}
+
+/* ===== 動き ===== */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.is-pulse {
+  animation: pulse var(--dur-pulse) var(--ease-out);
+  transform-origin: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-pulse {
+    animation: none;
+  }
+}

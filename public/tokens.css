@@ -1,0 +1,79 @@
+/* Tick-Tock-Clock デザイントークン
+   方針：分かりやすさを重視。色の意味は固定（計画書 4.1 章）。 */
+:root {
+  /* 紙・面・線 */
+  --c-paper: #fdfaf3;
+  --c-surface: #ffffff;
+  --c-ink: #1f1d1a;
+  --c-ink-2: #4a4640;
+  --c-rule: #d9d3c4;
+  --c-rule-2: #b5ad9a;
+
+  /* 時針は赤、分針は青（学習時計の慣例） */
+  --c-hour: #b71c1c;
+  --c-minute: #0d47a1;
+
+  /* すすむ（青系） */
+  --c-forward: #1976d2;
+  --c-forward-weak: #bbdefb;
+  --c-forward-strong: #0d47a1;
+
+  /* もどる（橙系） */
+  --c-backward: #ef6c00;
+  --c-backward-weak: #ffe0b2;
+  --c-backward-strong: #bf360c;
+
+  /* 区切りの目印、正解、もういちど */
+  --c-mark: #fbc02d;
+  --c-correct: #2e7d32;
+  --c-correct-soft: #e8f5e9;
+  --c-retry: #757575;
+  --c-retry-soft: #eeeeee;
+
+  --c-focus: #1565c0;
+  --c-shadow: rgba(31, 29, 26, 0.10);
+
+  /* フォント */
+  --font-udp: 'BIZ UDPGothic', 'BIZ UDGothic', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  --font-mplus: 'M PLUS 1p', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  --font-klee: 'Klee One', 'Yu Gothic UI', 'Meiryo', sans-serif;
+  --font-body: var(--font-udp);
+  --font-num: var(--font-udp);
+
+  /* 文字サイズ（子ども向け画面は 18px 以上） */
+  --text-sm: 0.875rem;
+  --text-base: 1.125rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
+  --text-2xl: 2.5rem;
+  --text-3xl: 3rem;
+
+  /* 間隔 */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+
+  /* 操作対象 */
+  --tap-min: 56px;
+  --tap-gap: 12px;
+
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-short: 180ms;
+  --dur-pulse: 350ms;
+}
+
+html[data-font='mplus'] {
+  --font-body: var(--font-mplus);
+  --font-num: var(--font-mplus);
+}
+
+html[data-font='klee'] {
+  --font-body: var(--font-klee);
+  --font-num: var(--font-mplus);
+}
