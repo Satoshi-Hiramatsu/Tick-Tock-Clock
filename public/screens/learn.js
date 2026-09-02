@@ -1,4 +1,5 @@
 // S02 まなぶ：時計を自由に動かし、動いた量を帯・デジタル時計・カウンター・数直線・ブロックで見る。
+// ワイド画面では時計を左に大きく、操作ボタンと動きの表示を右に並べる（style.css の「まなぶ：ワイド画面」）。
 
 import { createMovementView } from '../components/movement-view.js';
 import { addMinutes } from '../lib/time.js';
@@ -19,8 +20,8 @@ export function renderLearn(root, { settings }) {
   root.innerHTML = `
     <section class="learn">
       <div class="learn__view"></div>
-      <p class="learn__hint">ながい はりを ゆびで うごかすことも できます。</p>
       <div class="learn__controls">
+        <p class="learn__hint">ながい はりを ゆびで うごかすことも できます。</p>
         <div class="btn-row btn-row--forward">
           <span class="btn-row__title"><span aria-hidden="true">⟳</span> すすむ</span>
           ${buttonRow(1)}

@@ -1,5 +1,7 @@
 // 「動きのビュー」：時計・デジタル時計・経過分カウンター・数直線・時間ブロック・式を
 // 1つの「経過分」から描く。まなぶ画面と、れんしゅうの解説画面で共用する。
+// DOM は「時計＋デジタル時刻」(.mv__stage) と「カウンター・スクラブ・数直線・式」(.mv__panel) の
+// 2ブロック構成。既定は縦積み、まなぶ画面のワイド表示では左右に並べる（style.css）。
 
 import { createClock } from '../lib/clock-svg.js';
 import { createAnimator } from '../lib/animator.js';
@@ -45,11 +47,13 @@ export function createMovementView(
 ) {
   container.innerHTML = `
     <div class="mv">
-      <div class="mv__clock"></div>
-      <div class="mv__readout">
+      <div class="mv__stage">
+        <div class="mv__clock"></div>
         <div class="digital" aria-live="polite">
           <span class="digital__prefix"></span><span class="digital__h">0</span><span class="digital__unit digital__unit--h">時</span><span class="digital__m">00</span><span class="digital__unit digital__unit--m">分</span>
         </div>
+      </div>
+      <div class="mv__panel">
         <div class="counter">
           <div class="counter__main">
             <span class="counter__dir" aria-hidden="true">⟳</span>
@@ -58,22 +62,22 @@ export function createMovementView(
           </div>
           <div class="counter__breakdown" hidden></div>
         </div>
+        <div class="mv__scrub" ${scrub ? '' : 'hidden'}>
+          <button type="button" class="btn btn--icon mv__play" aria-label="もういちど うごかす" title="もういちど うごかす">▶</button>
+          <input type="range" class="mv__range" min="0" max="1000" value="0" aria-label="うごきの いち">
+          <fieldset class="speed speed--compact" ${controls ? '' : 'hidden'}>
+            <legend>はやさ</legend>
+            ${SPEEDS.map(
+              (s) => `<label class="speed__item"><input type="radio" name="speed" value="${s.id}" ${settings.speed === s.id ? 'checked' : ''}><span>${s.label}</span></label>`,
+            ).join('')}
+          </fieldset>
+        </div>
+        <div class="mv__extras" ${extras ? '' : 'hidden'}>
+          <div class="numberline"><svg class="numberline__svg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true"></svg></div>
+          <div class="blocks" aria-label="じかんの ブロック"></div>
+        </div>
+        <ol class="formula" ${formula ? '' : 'hidden'}></ol>
       </div>
-      <div class="mv__scrub" ${scrub ? '' : 'hidden'}>
-        <button type="button" class="btn btn--icon mv__play" aria-label="もういちど うごかす" title="もういちど うごかす">▶</button>
-        <input type="range" class="mv__range" min="0" max="1000" value="0" aria-label="うごきの いち">
-        <fieldset class="speed speed--compact" ${controls ? '' : 'hidden'}>
-          <legend>はやさ</legend>
-          ${SPEEDS.map(
-            (s) => `<label class="speed__item"><input type="radio" name="speed" value="${s.id}" ${settings.speed === s.id ? 'checked' : ''}><span>${s.label}</span></label>`,
-          ).join('')}
-        </fieldset>
-      </div>
-      <div class="mv__extras" ${extras ? '' : 'hidden'}>
-        <div class="numberline"><svg class="numberline__svg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-        <div class="blocks" aria-label="じかんの ブロック"></div>
-      </div>
-      <ol class="formula" ${formula ? '' : 'hidden'}></ol>
     </div>`;
 
   const $ = (sel) => container.querySelector(sel);

@@ -318,24 +318,6 @@ button {
   gap: var(--space-lg);
 }
 
-.learn__stage {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-md);
-}
-
-.learn__clock {
-  width: min(70vw, 360px);
-  min-width: 240px;
-}
-
-.learn__readout {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-xs);
-  width: 100%;
-}
-
 .digital {
   font-family: var(--font-num);
   font-size: var(--text-3xl);
@@ -408,6 +390,12 @@ button {
 .learn__controls {
   display: grid;
   gap: var(--space-md);
+}
+
+.learn__hint {
+  margin: 0;
+  color: var(--c-ink-2);
+  text-align: center;
 }
 
 .btn-row {
@@ -500,6 +488,88 @@ button {
   }
 }
 
+/* ===== まなぶ：ワイド画面（16:9 モニター想定）=====
+   時計を左に大きく置き、右の列は上から「操作ボタン」「カウンター・スクラブ・数直線・式」の順に並べる。
+   ボタンを上に固定することで、式や数直線が増えてもボタンの位置が動かない。
+   .learn__view と .mv は display: contents で透過させ、.learn のグリッドに直接並べる。 */
+@media (min-width: 960px) {
+  body[data-route='learn'] .app {
+    max-width: 1720px;
+  }
+
+  .learn {
+    grid-template-columns: auto minmax(0, 760px);
+    grid-template-rows: auto 1fr;
+    column-gap: var(--space-xl);
+    row-gap: var(--space-md);
+    justify-content: center;
+    align-items: start;
+  }
+
+  .learn__view,
+  .learn .mv {
+    display: contents;
+  }
+
+  .learn .mv__stage {
+    grid-column: 1;
+    grid-row: 1 / -1;
+    position: sticky;
+    top: var(--space-md);
+    gap: var(--space-sm);
+  }
+
+  /* 高さは画面の高さから上部バー・デジタル時刻・余白を引いた分、幅は画面幅の 46% まで */
+  .learn .mv__clock {
+    width: min(calc(100vh - 15rem), 46vw);
+    min-width: 320px;
+    margin-bottom: 0;
+  }
+
+  .learn .digital {
+    font-size: clamp(var(--text-3xl), 4.5vw, 4.5rem);
+  }
+
+  .learn__controls {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .learn__hint {
+    text-align: left;
+  }
+
+  .learn .mv__panel {
+    grid-column: 2;
+    grid-row: 2;
+    gap: var(--space-sm);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--c-rule);
+    justify-items: stretch;
+  }
+
+  /* 「= 1時間」の内訳を横に並べて高さを抑える */
+  .learn .mv__panel .counter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-self: start;
+    gap: 0 0.5em;
+    min-width: 0;
+  }
+
+  .learn .formula__step {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .learn .mv__scrub,
+  .learn .mv__extras,
+  .learn .formula {
+    max-width: none;
+  }
+}
+
 /* ===== 準備中 ===== */
 .placeholder {
   display: grid;
@@ -545,15 +615,23 @@ button {
   width: 100%;
 }
 
-.mv__clock {
-  width: min(70vw, 360px);
-  min-width: 240px;
-}
-
-.mv__readout {
+.mv__stage {
   display: grid;
   justify-items: center;
   gap: var(--space-xs);
+  width: 100%;
+}
+
+.mv__clock {
+  width: min(70vw, 360px);
+  min-width: 240px;
+  margin-bottom: var(--space-xs);
+}
+
+.mv__panel {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-md);
   width: 100%;
 }
 
@@ -601,7 +679,8 @@ button {
 .numberline__svg {
   display: block;
   width: 100%;
-  height: 56px;
+  height: auto;
+  aspect-ratio: 400 / 44;
   overflow: visible;
 }
 
@@ -742,12 +821,6 @@ button {
 .clock__hand--ghost {
   opacity: 0.3;
   stroke-dasharray: 4 3;
-}
-
-.learn__hint {
-  margin: 0;
-  color: var(--c-ink-2);
-  text-align: center;
 }
 
 .toggle {
