@@ -138,4 +138,14 @@ test('getText: 漢字レベル別の辞書引き', () => {
 
   assert.equal(getText('movement.speed', 'kana'), 'はやさ');
   assert.equal(getText('movement.speed', 'adult'), '速度');
+
+  assert.equal(getText('movement.forward', 'kana'), 'すすんだ時間');
+  assert.equal(plain(getText('movement.forward', 'grade3')), '進んだ時間');
+  assert.equal(getText('movement.forward', 'adult'), '経過時間（進む）');
+
+  assert.equal(getText('movement.backward', 'kana'), 'もどった時間');
+  assert.equal(plain(getText('movement.backward', 'grade3')), '戻った時間');
+  assert.equal(getText('movement.backward', 'adult'), '経過時間（戻る）');
+
+  assert.equal(plain(getText('movement.replay', 'grade3')), 'もう一度 動かす');
 });

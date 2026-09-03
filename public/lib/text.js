@@ -89,7 +89,7 @@ export const UI_TEXT = {
       adult: '長針をドラッグして動かすこともできます。',
     },
     forward: { kana: 'すすむ', grade3: ruby('進', 'すす') + 'む', adult: '進む' },
-    backward: { kana: 'もどる', grade3: 'もどる', adult: '戻る' },
+    backward: { kana: 'もどる', grade3: ruby('戻', 'もど') + 'る', adult: '戻る' },
     teachTitle: {
       kana: 'じこくを きめて うごかす（せんせいモード）',
       grade3: `${ruby('時こく', 'じこく')}を ${ruby('決', 'き')}めて ${ruby('動', 'うご')}かす（先生モード）`,
@@ -104,7 +104,7 @@ export const UI_TEXT = {
     btnJump: { kana: 'この じこくに する', grade3: `この ${ruby('時こく', 'じこく')}にする`, adult: 'この時刻にする' },
     teachStep2: { kana: '2. 分すうを きめて うごかす', grade3: `2. 分数を ${ruby('決', 'き')}めて ${ruby('動', 'うご')}かす`, adult: '2. 分数を指定して動かす' },
     teachForward: { kana: 'すすむ（〜分後）', grade3: `${ruby('進', 'すす')}む（〜分後）`, adult: '進む（〜分後）' },
-    teachBackward: { kana: 'もどる（〜分前）', grade3: 'もどる（〜分前）', adult: '戻る（〜分前）' },
+    teachBackward: { kana: 'もどる（〜分前）', grade3: `${ruby('戻', 'もど')}る（〜分前）`, adult: '戻る（〜分前）' },
     teachNote: {
       kana: '90分の ように 60分より 大きい 数も 入れられます。',
       grade3: '90分の ように 60分より 大きい 数も 入力できます。',
@@ -171,7 +171,7 @@ export const UI_TEXT = {
   },
   movement: {
     forward: { kana: 'すすんだ時間', grade3: `${ruby('進', 'すす')}んだ時間`, adult: '経過時間（進む）' },
-    backward: { kana: 'もどった時間', grade3: '戻った時間', adult: '経過時間（戻る）' },
+    backward: { kana: 'もどった時間', grade3: `${ruby('戻', 'もど')}った時間`, adult: '経過時間（戻る）' },
     replay: { kana: 'もういちど うごかす', grade3: `もう一度 ${ruby('動', 'うご')}かす`, adult: 'もう一度再生' },
     speed: { kana: 'はやさ', grade3: `${ruby('速', 'はや')}さ`, adult: '速度' },
     speeds: {

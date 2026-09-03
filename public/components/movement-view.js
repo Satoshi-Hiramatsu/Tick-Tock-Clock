@@ -6,7 +6,7 @@
 import { createClock } from '../lib/clock-svg.js';
 import { createAnimator } from '../lib/animator.js';
 import { addMinutes, toMinutes, crossings, splitAtHour, splitByHour, hour12, mod, MINUTES_PER_DAY } from '../lib/time.js';
-import { timeLabel, durationLabel, getText } from '../lib/text.js';
+import { timeLabel, durationLabel, getText, plain } from '../lib/text.js';
 
 const SPEEDS = [
   { id: 'slow', label: 'ゆっくり' },
@@ -79,7 +79,7 @@ export function createMovementView(
           <div class="counter__breakdown" hidden></div>
         </div>
         <div class="mv__scrub" ${scrub ? '' : 'hidden'}>
-          <button type="button" class="btn btn--icon mv__play" aria-label="${replayLabel}" title="${replayLabel}">▶</button>
+          <button type="button" class="btn btn--icon mv__play" aria-label="${plain(replayLabel)}" title="${plain(replayLabel)}">▶</button>
           <input type="range" class="mv__range" min="0" max="1000" value="0" aria-label="うごきの いち">
           <fieldset class="speed speed--compact" ${controls ? '' : 'hidden'}>
             <legend>${speedLegend}</legend>
@@ -90,7 +90,7 @@ export function createMovementView(
         </div>
         <div class="mv__extras" ${extras ? '' : 'hidden'}>
           <div class="numberline"><svg class="numberline__svg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-          <div class="blocks" aria-label="${blocksLabel}"></div>
+          <div class="blocks" aria-label="${plain(blocksLabel)}"></div>
         </div>
         <ol class="formula" ${formula ? '' : 'hidden'}></ol>
       </div>
@@ -157,7 +157,7 @@ export function createMovementView(
     }
     counterEl.classList.toggle('is-backward', direction < 0);
     dirEl.textContent = direction < 0 ? '⟲' : '⟳';
-    labelEl.textContent = direction < 0 ? backwardLabel : forwardLabel;
+    labelEl.innerHTML = direction < 0 ? backwardLabel : forwardLabel;
   }
 
   function buildNumberLine() {
