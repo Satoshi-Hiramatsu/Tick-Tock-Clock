@@ -1,10 +1,11 @@
-// S02 まなぶ：時計を自由に動かし、動いた量を帯・デジタル時計・カウンター・数直線・ブロックで見る。
-// ワイド画面では時計を左に大きく、操作ボタンと動きの表示を右に並べる（style.css の「まなぶ：ワイド画面」）。
+// まなぶ画面：時計を自由に動かし、動いた量を帯・デジタル時計・カウンター・数直線・ブロックで見る。
+// 漢字レベル（kana / grade3 / adult）に応じたテキスト切り替えに対応。
 
 import { createMovementView } from '../components/movement-view.js';
 import { createNumpad } from '../components/numpad.js';
 import { addMinutes } from '../lib/time.js';
 import { saveSettings } from '../lib/storage.js';
+import { getText } from '../lib/text.js';
 
 const DELTAS = [5, 10, 30, 60];
 const START = { h: 15, m: 0 };
@@ -18,46 +19,66 @@ function buttonRow(direction) {
 }
 
 export function renderLearn(root, { settings }) {
+  const lvl = settings.kanjiLevel || 'kana';
+
+  const t = {
+    dragHint: getText('learn.dragHint', lvl, 'ながい はりを ゆびで うごかすことも できます。'),
+    forward: getText('learn.forward', lvl, 'すすむ'),
+    backward: getText('learn.backward', lvl, 'もどる'),
+    teachTitle: getText('learn.teachTitle', lvl, 'じこくを きめて うごかす（せんせいモード）'),
+    teachHint: getText('learn.teachHint', lvl, 'テストの もんだいと おなじ じこく・おなじ 分すうを 入れて、そのまま うごかせます。'),
+    teachStep1: getText('learn.teachStep1', lvl, '1. じこくを きめる'),
+    btnJump: getText('learn.btnJump', lvl, 'この じこくに する'),
+    teachStep2: getText('learn.teachStep2', lvl, '2. 分すうを きめて うごかす'),
+    teachForward: getText('learn.teachForward', lvl, 'すすむ（〜分後）'),
+    teachBackward: getText('learn.teachBackward', lvl, 'もどる（〜分前）'),
+    teachNote: getText('learn.teachNote', lvl, '90分の ように 60分より 大きい 数も 入れられます。'),
+    btnMove: getText('learn.btnMove', lvl, 'うごかす'),
+    explainSplit: getText('learn.explainSplit', lvl, 'くぎって かんがえる'),
+    explainChunk: getText('learn.explainChunk', lvl, '1じかんの かたまりで かんがえる'),
+    reset: getText('learn.reset', lvl, 'はじめから'),
+  };
+
   root.innerHTML = `
     <section class="learn">
       <div class="learn__view"></div>
       <div class="learn__controls">
-        <p class="learn__hint">ながい はりを ゆびで うごかすことも できます。</p>
+        <p class="learn__hint">${t.dragHint}</p>
         <div class="btn-row btn-row--forward">
-          <span class="btn-row__title"><span aria-hidden="true">⟳</span> すすむ</span>
+          <span class="btn-row__title"><span aria-hidden="true">⟳</span> ${t.forward}</span>
           ${buttonRow(1)}
         </div>
         <div class="btn-row btn-row--backward">
-          <span class="btn-row__title"><span aria-hidden="true">⟲</span> もどる</span>
+          <span class="btn-row__title"><span aria-hidden="true">⟲</span> ${t.backward}</span>
           ${buttonRow(-1)}
         </div>
         <details class="teach">
-          <summary class="teach__summary">じこくを きめて うごかす（せんせいモード）</summary>
+          <summary class="teach__summary">${t.teachTitle}</summary>
           <div class="teach__body">
-            <p class="teach__hint">テストの もんだいと おなじ じこく・おなじ 分すうを 入れて、そのまま うごかせます。</p>
+            <p class="teach__hint">${t.teachHint}</p>
             <div class="teach__block">
-              <h2 class="teach__label">1. じこくを きめる</h2>
+              <h2 class="teach__label">${t.teachStep1}</h2>
               <div class="teach__pad teach__pad--time"></div>
-              <button type="button" class="btn btn--primary" data-action="jump">この じこくに する</button>
+              <button type="button" class="btn btn--primary" data-action="jump">${t.btnJump}</button>
               <p class="teach__error" data-error="jump" hidden></p>
             </div>
             <div class="teach__block">
-              <h2 class="teach__label">2. 分すうを きめて うごかす</h2>
+              <h2 class="teach__label">${t.teachStep2}</h2>
               <div class="teach__dir">
-                <label class="toggle"><input type="radio" name="teachDir" value="1" checked><span><span aria-hidden="true">⟳</span> すすむ（〜分後）</span></label>
-                <label class="toggle"><input type="radio" name="teachDir" value="-1"><span><span aria-hidden="true">⟲</span> もどる（〜分前）</span></label>
+                <label class="toggle"><input type="radio" name="teachDir" value="1" checked><span><span aria-hidden="true">⟳</span> ${t.teachForward}</span></label>
+                <label class="toggle"><input type="radio" name="teachDir" value="-1"><span><span aria-hidden="true">⟲</span> ${t.teachBackward}</span></label>
               </div>
               <div class="teach__pad teach__pad--minutes"></div>
-              <p class="teach__note">90分の ように 60分より 大きい 数も 入れられます。</p>
-              <button type="button" class="btn btn--primary" data-action="move-custom">うごかす</button>
+              <p class="teach__note">${t.teachNote}</p>
+              <button type="button" class="btn btn--primary" data-action="move-custom">${t.btnMove}</button>
               <p class="teach__error" data-error="move-custom" hidden></p>
             </div>
           </div>
         </details>
         <div class="learn__options">
-          <label class="toggle"><input type="radio" name="explain" value="split" ${settings.explainMode === 'split' ? 'checked' : ''}><span>くぎって かんがえる</span></label>
-          <label class="toggle"><input type="radio" name="explain" value="chunk" ${settings.explainMode === 'chunk' ? 'checked' : ''}><span>1じかんの かたまりで かんがえる</span></label>
-          <button type="button" class="btn btn--ghost" data-action="reset">はじめから</button>
+          <label class="toggle"><input type="radio" name="explain" value="split" ${settings.explainMode === 'split' ? 'checked' : ''}><span>${t.explainSplit}</span></label>
+          <label class="toggle"><input type="radio" name="explain" value="chunk" ${settings.explainMode === 'chunk' ? 'checked' : ''}><span>${t.explainChunk}</span></label>
+          <button type="button" class="btn btn--ghost" data-action="reset">${t.reset}</button>
         </div>
       </div>
     </section>`;
@@ -121,7 +142,7 @@ export function renderLearn(root, { settings }) {
   function applyTime() {
     const answer = timePad.getAnswer();
     if (!answer) {
-      showError('jump', settings.ampm ? '午前・午後と、時・分を 入れてください。' : '時・分を 入れてください。');
+      showError('jump', settings.ampm ? getText('learn.errTime', lvl, '午前・午後と、時・分を 入れてください。') : getText('learn.errTimeSimple', lvl, '時・分を 入れてください。'));
       return;
     }
     showError('jump', '');
@@ -132,7 +153,7 @@ export function renderLearn(root, { settings }) {
   function applyMinutes() {
     const answer = minutesPad.getAnswer();
     if (!answer || answer.value <= 0) {
-      showError('move-custom', '1いじょうの 分すうを 入れてください。');
+      showError('move-custom', getText('learn.errMinutes', lvl, '1いじょうの 分すうを 入れてください。'));
       return;
     }
     showError('move-custom', '');

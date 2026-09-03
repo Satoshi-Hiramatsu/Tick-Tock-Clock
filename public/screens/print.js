@@ -1,4 +1,4 @@
-// S07〜S08 プリント：設定と A4 プレビュー、印刷
+// プリント画面：大人（保護者・教員）が使用する前提の漢字UIと印刷レイアウト
 
 import { generateSet, PATTERNS, PRESETS, answerLabel } from '../lib/problems/index.js';
 import { createClock } from '../lib/clock-svg.js';
@@ -6,8 +6,8 @@ import { randomSeed } from '../lib/rng.js';
 import { hour12 } from '../lib/time.js';
 
 const COUNTS = [6, 8, 10];
-const OUTPUTS = { q: 'もんだいのみ', a: 'こたえのみ', both: 'もんだい＋こたえ' };
-const DIFFICULTY_LABELS = { 1: 'やさしい', 2: 'ふつう', 3: 'むずかしい', 4: 'はってん' };
+const OUTPUTS = { both: '問題と解答', q: '問題のみ', a: '解答のみ' };
+const DIFFICULTY_LABELS = { 1: '初級（やさしい）', 2: '標準（ふつう）', 3: '上級（むずかしい）', 4: '発展' };
 
 function readParams(params, settings) {
   const d = Number(params.get('d')) || settings.lastDifficulty || 2;
@@ -32,46 +32,46 @@ export function renderPrint(root, { settings, params }) {
   const state = readParams(params, settings);
   root.innerHTML = `
     <section class="print">
-      <form class="print__form" aria-label="プリントの せってい">
-        <h1 class="print__title">プリント</h1>
+      <form class="print__form" aria-label="プリント設定">
+        <h1 class="print__title">プリント作成</h1>
         <fieldset class="setup__group">
-          <legend>むずかしさ</legend>
+          <legend>難易度</legend>
           <div class="setup__options">
             ${[1, 2, 3, 4].map((d) => `<label class="chip"><input type="radio" name="d" value="${d}" ${d === state.d ? 'checked' : ''}><span>★${d} ${DIFFICULTY_LABELS[d]}</span></label>`).join('')}
           </div>
         </fieldset>
         <fieldset class="setup__group">
-          <legend>もんだいの しゅるい</legend>
+          <legend>問題の種類</legend>
           <div class="setup__patterns setup__patterns--compact">
             ${Object.values(PATTERNS).map((pt) => `<label class="pattern-chip"><input type="checkbox" name="p" value="${pt.id}"><span class="pattern-chip__name">${pt.name}</span><span class="pattern-chip__desc">${pt.desc}</span></label>`).join('')}
           </div>
         </fieldset>
         <fieldset class="setup__group">
-          <legend>まいすう と もんだいすう</legend>
+          <legend>枚数と問題数</legend>
           <div class="setup__options">
-            <label class="field">もんだいすう
-              <select name="n">${COUNTS.map((n) => `<option value="${n}" ${n === state.n ? 'selected' : ''}>${n}もん</option>`).join('')}</select>
+            <label class="field">問題数
+              <select name="n">${COUNTS.map((n) => `<option value="${n}" ${n === state.n ? 'selected' : ''}>${n}問</option>`).join('')}</select>
             </label>
-            <label class="field">まいすう
-              <select name="pages">${Array.from({ length: 10 }, (_, i) => i + 1).map((n) => `<option value="${n}" ${n === state.pages ? 'selected' : ''}>${n}まい</option>`).join('')}</select>
+            <label class="field">枚数
+              <select name="pages">${Array.from({ length: 10 }, (_, i) => i + 1).map((n) => `<option value="${n}" ${n === state.pages ? 'selected' : ''}>${n}枚</option>`).join('')}</select>
             </label>
-            <label class="field">しゅつりょく
+            <label class="field">出力内容
               <select name="out">${Object.entries(OUTPUTS).map(([k, v]) => `<option value="${k}" ${k === state.out ? 'selected' : ''}>${v}</option>`).join('')}</select>
             </label>
-            <label class="chip"><input type="checkbox" name="name" ${state.name ? 'checked' : ''}><span>なまえ・日づけ らん</span></label>
+            <label class="chip"><input type="checkbox" name="name" ${state.name ? 'checked' : ''}><span>名前・日付・得点欄</span></label>
           </div>
         </fieldset>
         <div class="print__buttons">
-          <button type="submit" class="btn btn--primary">つくる</button>
-          <button type="button" class="btn" data-action="print" ${state.seed ? '' : 'disabled'}>いんさつ / PDF</button>
+          <button type="submit" class="btn btn--primary">プリント作成</button>
+          <button type="button" class="btn" data-action="print" ${state.seed ? '' : 'disabled'}>印刷 / PDF保存</button>
         </div>
-        <p class="setup__note" data-seed>${state.seed ? `シード ${state.seed}（この URL を ひらくと おなじ プリントに なります）／ プレビューを クリックすると 大きく なります。` : '「つくる」を おすと プレビューが でます。'}</p>
+        <p class="setup__note" data-seed>${state.seed ? `シード ${state.seed}（同一URLで再印刷可能）／ プレビューをクリックすると拡大表示されます。` : '「プリント作成」を押すとプレビューが表示されます。'}</p>
       </form>
       <div class="print__preview">
         <div class="print__sheets" data-sheets></div>
       </div>
       <div class="print__toolbar">
-        <button type="button" class="btn btn--primary" data-action="print" ${state.seed ? '' : 'disabled'}>いんさつ / PDF</button>
+        <button type="button" class="btn btn--primary" data-action="print" ${state.seed ? '' : 'disabled'}>印刷 / PDF保存</button>
       </div>
     </section>`;
 
@@ -158,7 +158,6 @@ function fitSheets(section, preview, sheetsEl) {
     const sheetHeight = sheet.offsetHeight;
     if (!sheetWidth || !sheetHeight) return;
     const wide = window.innerWidth > 760;
-    // .print は position: static なので、スクロール位置に関係なく同じ上端が得られる。
     const top = section.getBoundingClientRect().top + window.scrollY;
     const paneHeight = Math.max(360, window.innerHeight - top - 16);
     preview.style.height = wide ? `${paneHeight}px` : '';
@@ -201,7 +200,7 @@ function createZoom() {
     stage.style.width = `${sheet.offsetWidth * scale}px`;
     stage.style.height = `${sheet.offsetHeight * scale}px`;
     overlay.dataset.mode = mode;
-    overlay.querySelector('[data-zoom]').textContent = mode === 'fit' ? '等倍で みる' : '画面に あわせる';
+    overlay.querySelector('[data-zoom]').textContent = mode === 'fit' ? '等倍で表示' : '画面に合わせる';
   }
 
   function onKey(e) {
@@ -216,12 +215,12 @@ function createZoom() {
     overlay.className = 'print__zoom';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', 'プリントの プレビュー');
+    overlay.setAttribute('aria-label', 'プリントのプレビュー');
     overlay.innerHTML = `
       <div class="print__zoom-stage" data-stage></div>
       <div class="print__zoom-bar">
-        <button type="button" class="btn" data-zoom>等倍で みる</button>
-        <button type="button" class="btn btn--primary" data-close>とじる</button>
+        <button type="button" class="btn" data-zoom>等倍で表示</button>
+        <button type="button" class="btn btn--primary" data-close>閉じる</button>
       </div>`;
     const clone = source.cloneNode(true);
     for (const attr of ['tabindex', 'role', 'aria-label']) clone.removeAttribute(attr);
@@ -272,13 +271,13 @@ function buildSheet(problems, { n, page, pages, answer, name, settings }) {
   sheet.className = `sheet sheet--n${n} ${answer ? 'sheet--answer' : ''}`;
   sheet.tabIndex = 0;
   sheet.setAttribute('role', 'button');
-  sheet.setAttribute('aria-label', `${answer ? 'こたえ' : 'もんだい'}の プレビューを 大きく みる`);
+  sheet.setAttribute('aria-label', `${answer ? '解答' : '問題'}のプレビューを拡大表示`);
   sheet.innerHTML = `
     <header class="sheet__head">
-      <h2 class="sheet__title">とけいの ${answer ? 'こたえ' : 'テスト'}${pages > 1 ? ` <small>${page + 1} / ${pages}</small>` : ''}</h2>
+      <h2 class="sheet__title">時計のテスト${answer ? '（解答）' : ''}${pages > 1 ? ` <small>${page + 1} / ${pages}</small>` : ''}</h2>
       ${
         name && !answer
-          ? `<div class="sheet__fields"><span>なまえ</span><span class="sheet__line"></span><span>日づけ</span><span class="sheet__line sheet__line--short"></span><span>てん</span><span class="sheet__line sheet__line--short"></span></div>`
+          ? `<div class="sheet__fields"><span>名前</span><span class="sheet__line"></span><span>日付</span><span class="sheet__line sheet__line--short"></span><span>点</span><span class="sheet__line sheet__line--short"></span></div>`
           : ''
       }
     </header>

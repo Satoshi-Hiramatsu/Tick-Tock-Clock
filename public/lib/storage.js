@@ -5,6 +5,7 @@ const SETTINGS_KEY = 'ttc.settings';
 
 export const DEFAULT_SETTINGS = Object.freeze({
   furigana: true,
+  kanjiLevel: 'kana', // 'kana' | 'grade3' | 'adult'
   ampm: true,
   minuteNumbers: true,
   explainMode: 'split', // 'split' | 'chunk'

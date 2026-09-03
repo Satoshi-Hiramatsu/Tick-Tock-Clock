@@ -6,7 +6,7 @@
 import { createClock } from '../lib/clock-svg.js';
 import { createAnimator } from '../lib/animator.js';
 import { addMinutes, toMinutes, crossings, splitAtHour, splitByHour, hour12, mod, MINUTES_PER_DAY } from '../lib/time.js';
-import { timeLabel, durationLabel } from '../lib/text.js';
+import { timeLabel, durationLabel, getText } from '../lib/text.js';
 
 const SPEEDS = [
   { id: 'slow', label: 'ゆっくり' },
@@ -45,6 +45,22 @@ export function createMovementView(
   container,
   { settings, controls = true, scrub = true, formula = true, extras = true, ampm = settings.ampm },
 ) {
+  const lvl = settings.kanjiLevel || 'kana';
+  const speedLabels = {
+    slow: getText('movement.speeds.slow', lvl, 'ゆっくり'),
+    normal: getText('movement.speeds.normal', lvl, 'ふつう'),
+    instant: getText('movement.speeds.instant', lvl, 'いっき'),
+  };
+  const speeds = [
+    { id: 'slow', label: speedLabels.slow },
+    { id: 'normal', label: speedLabels.normal },
+    { id: 'instant', label: speedLabels.instant },
+  ];
+  const forwardLabel = getText('movement.forward', lvl, 'すすんだ時間');
+  const backwardLabel = getText('movement.backward', lvl, 'もどった時間');
+  const replayLabel = getText('movement.replay', lvl, 'もういちど うごかす');
+  const speedLegend = getText('movement.speed', lvl, 'はやさ');
+  const blocksLabel = getText('movement.blocks', lvl, 'じかんの ブロック');
   container.innerHTML = `
     <div class="mv">
       <div class="mv__stage">
@@ -57,24 +73,24 @@ export function createMovementView(
         <div class="counter">
           <div class="counter__main">
             <span class="counter__dir" aria-hidden="true">⟳</span>
-            <span class="counter__label">すすんだ時間</span>
+            <span class="counter__label">${forwardLabel}</span>
             <span class="counter__n">0</span><span class="counter__unit">分</span>
           </div>
           <div class="counter__breakdown" hidden></div>
         </div>
         <div class="mv__scrub" ${scrub ? '' : 'hidden'}>
-          <button type="button" class="btn btn--icon mv__play" aria-label="もういちど うごかす" title="もういちど うごかす">▶</button>
+          <button type="button" class="btn btn--icon mv__play" aria-label="${replayLabel}" title="${replayLabel}">▶</button>
           <input type="range" class="mv__range" min="0" max="1000" value="0" aria-label="うごきの いち">
           <fieldset class="speed speed--compact" ${controls ? '' : 'hidden'}>
-            <legend>はやさ</legend>
-            ${SPEEDS.map(
+            <legend>${speedLegend}</legend>
+            ${speeds.map(
               (s) => `<label class="speed__item"><input type="radio" name="speed" value="${s.id}" ${settings.speed === s.id ? 'checked' : ''}><span>${s.label}</span></label>`,
             ).join('')}
           </fieldset>
         </div>
         <div class="mv__extras" ${extras ? '' : 'hidden'}>
           <div class="numberline"><svg class="numberline__svg" viewBox="0 0 400 44" preserveAspectRatio="none" aria-hidden="true"></svg></div>
-          <div class="blocks" aria-label="じかんの ブロック"></div>
+          <div class="blocks" aria-label="${blocksLabel}"></div>
         </div>
         <ol class="formula" ${formula ? '' : 'hidden'}></ol>
       </div>
@@ -141,7 +157,7 @@ export function createMovementView(
     }
     counterEl.classList.toggle('is-backward', direction < 0);
     dirEl.textContent = direction < 0 ? '⟲' : '⟳';
-    labelEl.textContent = direction < 0 ? 'もどった時間' : 'すすんだ時間';
+    labelEl.textContent = direction < 0 ? backwardLabel : forwardLabel;
   }
 
   function buildNumberLine() {

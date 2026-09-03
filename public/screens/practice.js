@@ -6,7 +6,7 @@ import { createMovementView } from '../components/movement-view.js';
 import { createNumpad } from '../components/numpad.js';
 import { randomSeed } from '../lib/rng.js';
 import { splitAtHour, addMinutes, hour12 } from '../lib/time.js';
-import { timeLabel } from '../lib/text.js';
+import { timeLabel, getText } from '../lib/text.js';
 import { recordResult } from '../lib/storage.js';
 
 const COUNT = 10;
@@ -20,44 +20,53 @@ export function renderPractice(root, ctx) {
 
 // ---------- S03 設定 ----------
 function renderSetup(root, { settings, params }) {
+  const lvl = settings.kanjiLevel || 'kana';
   const difficulty = Number(params.get('d')) || settings.lastDifficulty || 2;
   const mode = params.get('mode') || settings.answerMode;
+
+  const title = getText('practice.title', lvl, 'れんしゅう');
+  const diffLegend = getText('practice.diffLegend', lvl, 'むずかしさ');
+  const patternsLegend = getText('practice.patternsLegend', lvl, 'もんだいの しゅるい');
+  const modeLegend = getText('practice.modeLegend', lvl, 'こたえかた');
+  const modeNote = getText('practice.modeNote', lvl, 'もんだいに よっては、こたえかたが かわります。');
+  const startBtn = getText('practice.startBtn', lvl, 'はじめる');
+
   root.innerHTML = `
     <section class="setup">
-      <h1 class="setup__title">れんしゅう</h1>
+      <h1 class="setup__title">${title}</h1>
       <fieldset class="setup__group">
-        <legend>むずかしさ</legend>
+        <legend>${diffLegend}</legend>
         <div class="setup__options">
           ${[1, 2, 3, 4]
             .map(
-              (d) => `<label class="chip"><input type="radio" name="difficulty" value="${d}" ${d === difficulty ? 'checked' : ''}><span>★${d} ${DIFFICULTY_LABELS[d]}</span></label>`,
+              (d) => `<label class="chip"><input type="radio" name="difficulty" value="${d}" ${d === difficulty ? 'checked' : ''}><span>★${d} ${getText(`practice.diff.${d}`, lvl, DIFFICULTY_LABELS[d])}</span></label>`,
             )
             .join('')}
         </div>
       </fieldset>
       <fieldset class="setup__group">
-        <legend>もんだいの しゅるい</legend>
+        <legend>${patternsLegend}</legend>
         <div class="setup__patterns">
           ${Object.values(PATTERNS)
             .map(
-              (p) => `<label class="pattern-chip"><input type="checkbox" name="pattern" value="${p.id}"><span class="pattern-chip__name">${p.name}</span><span class="pattern-chip__desc">${p.desc}</span></label>`,
+              (p) => `<label class="pattern-chip"><input type="checkbox" name="pattern" value="${p.id}"><span class="pattern-chip__name">${p.names?.[lvl] || p.name}</span><span class="pattern-chip__desc">${p.descs?.[lvl] || p.desc}</span></label>`,
             )
             .join('')}
         </div>
       </fieldset>
       <fieldset class="setup__group">
-        <legend>こたえかた</legend>
+        <legend>${modeLegend}</legend>
         <div class="setup__options">
           ${Object.entries(MODE_LABELS)
             .map(
-              ([id, label]) => `<label class="chip"><input type="radio" name="mode" value="${id}" ${id === mode ? 'checked' : ''}><span>${label}</span></label>`,
+              ([id, label]) => `<label class="chip"><input type="radio" name="mode" value="${id}" ${id === mode ? 'checked' : ''}><span>${getText(`practice.modes.${id}`, lvl, label)}</span></label>`,
             )
             .join('')}
         </div>
-        <p class="setup__note">もんだいに よっては、こたえかたが かわります。</p>
+        <p class="setup__note">${modeNote}</p>
       </fieldset>
       <div class="setup__actions">
-        <button type="button" class="btn btn--primary btn--big" data-action="start">はじめる</button>
+        <button type="button" class="btn btn--primary btn--big" data-action="start">${startBtn}</button>
       </div>
     </section>`;
 
@@ -97,11 +106,12 @@ function renderSetup(root, { settings, params }) {
 
 // ---------- S04〜S06 セッション ----------
 function renderSession(root, { settings, params }) {
+  const lvl = settings.kanjiLevel || 'kana';
   const difficulty = Number(params.get('d')) || 2;
   const patterns = (params.get('p') || '').split(',').filter(Boolean);
   const mode = params.get('mode') || settings.answerMode;
   const seed = Number(params.get('seed'));
-  const problems = generateSet({ patterns, difficulty, count: COUNT, seed });
+  const problems = generateSet({ patterns, difficulty, count: COUNT, seed, options: { kanjiLevel: lvl } });
   const results = []; // { problem, user, correct, tag, hints }
   let index = 0;
   let hints = 0;
@@ -130,7 +140,7 @@ function renderSession(root, { settings, params }) {
       <section class="quiz">
         <div class="quiz__head">
           <span class="quiz__progress">${index + 1} / ${problems.length}</span>
-          <span class="quiz__pattern">${PATTERNS[problem.pattern].name}</span>
+          <span class="quiz__pattern">${PATTERNS[problem.pattern].names?.[lvl] || PATTERNS[problem.pattern].name}</span>
         </div>
         <p class="quiz__text">${problem.textHtml}</p>
         <div class="quiz__body">
@@ -139,8 +149,8 @@ function renderSession(root, { settings, params }) {
         </div>
         <div class="quiz__hint" hidden></div>
         <div class="quiz__actions">
-          <button type="button" class="btn btn--ghost" data-action="hint">ヒントを みる</button>
-          <button type="button" class="btn btn--primary" data-action="submit" ${answerMode === 'choice' ? 'hidden' : ''}>こたえる</button>
+          <button type="button" class="btn btn--ghost" data-action="hint">${getText('practice.hintBtn', lvl, 'ヒントを みる')}</button>
+          <button type="button" class="btn btn--primary" data-action="submit" ${answerMode === 'choice' ? 'hidden' : ''}>${getText('practice.submitBtn', lvl, 'こたえる')}</button>
         </div>
       </section>`;
     const section = root.querySelector('.quiz');
@@ -173,7 +183,7 @@ function renderSession(root, { settings, params }) {
         submit(c.answer);
       });
     } else if (answerMode === 'hand') {
-      answerEl.innerHTML = `<p class="quiz__guide">ながい はりを ゆびで うごかして、こたえの じこくに あわせよう。</p>
+      answerEl.innerHTML = `<p class="quiz__guide">${getText('practice.handGuide', lvl, 'ながい はりを ゆびで うごかして、こたえの じこくに あわせよう。')}</p>
         <div class="digital digital--small"><span class="digital__prefix"></span><span class="digital__h"></span><span class="digital__unit">時</span><span class="digital__m"></span><span class="digital__unit">分</span></div>`;
       const hEl = answerEl.querySelector('.digital__h');
       const mEl = answerEl.querySelector('.digital__m');
@@ -226,14 +236,18 @@ function renderSession(root, { settings, params }) {
   }
 
   // ----- S05 解説 -----
-  function explain(i, { next, backLabel = 'つぎへ' }) {
+  function explain(i, { next, backLabel = getText('practice.nextBtn', lvl, 'つぎへ') }) {
     setPhase(() => {
       const r = results[i];
       const problem = r.problem;
+      const correctTitle = getText('practice.correctTitle', lvl, 'できた！');
+      const retryTitle = getText('practice.retryTitle', lvl, 'おしい。もういちど みてみよう');
+      const ansLabel = getText('practice.ansLabel', lvl, 'こたえ');
+      const yoursLabel = getText('practice.yoursLabel', lvl, 'あなたの こたえ');
       root.innerHTML = `
         <section class="explain ${r.correct ? 'explain--correct' : 'explain--retry'}">
-          <h2 class="explain__title">${r.correct ? 'できた！' : 'おしい。もういちど みてみよう'}</h2>
-          <p class="explain__answer">こたえ <b>${answerLabel(problem.answer)}</b>${r.correct ? '' : `<span class="explain__yours">（あなたの こたえ：${answerLabel(r.user)}）</span>`}</p>
+          <h2 class="explain__title">${r.correct ? correctTitle : retryTitle}</h2>
+          <p class="explain__answer">${ansLabel} <b>${answerLabel(problem.answer)}</b>${r.correct ? '' : `<span class="explain__yours">（${yoursLabel}：${answerLabel(r.user)}）</span>`}</p>
           <p class="quiz__text quiz__text--small">${problem.textHtml}</p>
           <div class="explain__view"></div>
           <ul class="explain__notes"></ul>
@@ -297,27 +311,40 @@ function renderSession(root, { settings, params }) {
       recordResult({ difficulty, patterns, seed, correct, total: done.length, byPattern, wrongTags });
     }
 
+    const resTitle = lvl === 'adult'
+      ? `${done.length}問中 <b>${correct}</b>問正解`
+      : (lvl === 'grade3' ? `${done.length}問中 <b>${correct}</b>問 正解しました` : `${done.length}もんちゅう <b>${correct}</b>もん できました`);
+    const resMsg = correct === done.length
+      ? (lvl === 'adult' ? '全問正解です。素晴らしい！' : (lvl === 'grade3' ? '全問正解！ よくできました！' : 'ぜんぶ できた！ すごい！'))
+      : (lvl === 'adult' ? '不正解だった問題のアニメーションを確認して復習しましょう。' : (lvl === 'grade3' ? '間違えた 問題の 動きを 見て、もう一度 考えてみよう。' : 'まちがえた もんだいの うごきを みて、もういちど かんがえてみよう。'));
+
+    const ansLabel = getText('practice.ansLabel', lvl, 'こたえ');
+    const reviewBtn = getText('practice.reviewBtn', lvl, 'うごきを みる');
+    const retrySetBtn = getText('practice.retrySetBtn', lvl, 'もういちど');
+    const selectPatternBtn = getText('practice.selectPatternBtn', lvl, 'もんだいを えらぶ');
+    const homeBtn = getText('practice.homeBtn', lvl, 'ホームへ');
+
     root.innerHTML = `
       <section class="result">
-        <h1 class="result__title">${done.length}もんちゅう <b>${correct}</b>もん できました</h1>
-        <p class="result__msg">${correct === done.length ? 'ぜんぶ できた！ すごい！' : 'まちがえた もんだいの うごきを みて、もういちど かんがえてみよう。'}</p>
+        <h1 class="result__title">${resTitle}</h1>
+        <p class="result__msg">${resMsg}</p>
         ${
           wrong.length
             ? `<ul class="result__list">${wrong
                 .map(
                   ({ r, i }) => `<li class="result__item">
                     <span class="result__q">${i + 1}. ${r.problem.text}</span>
-                    <span class="result__a">こたえ ${answerLabel(r.problem.answer)}</span>
-                    <button type="button" class="btn btn--ghost" data-review="${i}">うごきを みる</button>
+                    <span class="result__a">${ansLabel} ${answerLabel(r.problem.answer)}</span>
+                    <button type="button" class="btn btn--ghost" data-review="${i}">${reviewBtn}</button>
                   </li>`,
                 )
                 .join('')}</ul>`
             : ''
         }
         <div class="result__actions">
-          <a class="btn btn--primary" href="#practice?d=${difficulty}&p=${patterns.join(',')}&mode=${mode}&seed=${randomSeed()}">もういちど</a>
-          <a class="btn" href="#practice?d=${difficulty}&mode=${mode}">もんだいを えらぶ</a>
-          <a class="btn btn--ghost" href="#home">ホームへ</a>
+          <a class="btn btn--primary" href="#practice?d=${difficulty}&p=${patterns.join(',')}&mode=${mode}&seed=${randomSeed()}">${retrySetBtn}</a>
+          <a class="btn" href="#practice?d=${difficulty}&mode=${mode}">${selectPatternBtn}</a>
+          <a class="btn btn--ghost" href="#home">${homeBtn}</a>
         </div>
       </section>`;
     root.querySelector('.result').addEventListener('click', (e) => {

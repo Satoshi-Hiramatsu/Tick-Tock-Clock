@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { generateSet, PRESETS, PATTERN_IDS, validate, optionsFor, answersEqual } from '../public/lib/problems/index.js';
-import { minuteReading, plain, timeLabel } from '../public/lib/text.js';
+import { minuteReading, plain, timeLabel, getText } from '../public/lib/text.js';
 
 test('同じシードから同じ問題列が出る', () => {
   const a = generateSet({ patterns: [], difficulty: 3, count: 10, seed: 1234 });
@@ -89,4 +89,53 @@ test('文言のふりがな', () => {
   assert.equal(plain('<ruby>時<rt>じ</rt></ruby>10<ruby>分<rt>ぷん</rt></ruby>'), '時10分');
   assert.equal(timeLabel({ h: 15, m: 0 }), '3時');
   assert.equal(timeLabel({ h: 12, m: 30 }, { ampm: true }), '午後0時30分');
+});
+
+test('漢字レベル3段階（kana, grade3, adult）で問題が正しく生成される', () => {
+  for (const lvl of ['kana', 'grade3', 'adult']) {
+    const set = generateSet({ patterns: [], difficulty: 2, count: 10, seed: 100, options: { kanjiLevel: lvl } });
+    assert.equal(set.length, 10);
+    for (const p of set) {
+      assert.ok(p.text.length > 0);
+      assert.ok(!/</.test(p.text));
+    }
+  }
+
+  // P1 の漢字レベル別テキスト検証
+  const p1Kana = generateSet({ patterns: ['P1'], difficulty: 1, count: 1, seed: 1, options: { kanjiLevel: 'kana' } })[0];
+  const p1Grade3 = generateSet({ patterns: ['P1'], difficulty: 1, count: 1, seed: 1, options: { kanjiLevel: 'grade3' } })[0];
+  const p1Adult = generateSet({ patterns: ['P1'], difficulty: 1, count: 1, seed: 1, options: { kanjiLevel: 'adult' } })[0];
+  assert.ok(p1Kana.textHtml.includes('とけいは'));
+  assert.ok(p1Grade3.textHtml.includes('時計'));
+  assert.ok(p1Adult.textHtml.includes('指していますか'));
+
+  // P3 の漢字レベル別テキスト検証（いま / 今 / 現在）
+  const p3Kana = generateSet({ patterns: ['P3'], difficulty: 1, count: 1, seed: 1, options: { kanjiLevel: 'kana' } })[0];
+  const p3Grade3 = generateSet({ patterns: ['P3'], difficulty: 1, count: 1, seed: 1, options: { kanjiLevel: 'grade3' } })[0];
+  const p3Adult = generateSet({ patterns: ['P3'], difficulty: 1, count: 1, seed: 1, options: { kanjiLevel: 'adult' } })[0];
+  assert.ok(p3Kana.textHtml.startsWith('いま'));
+  assert.ok(p3Grade3.textHtml.startsWith('今'));
+  assert.ok(p3Adult.textHtml.startsWith('現在'));
+
+  // P7 の漢字レベル別テキスト検証（出て / 出発して / 出発し）
+  const p7Kana = generateSet({ patterns: ['P7'], difficulty: 3, count: 1, seed: 1, options: { kanjiLevel: 'kana' } })[0];
+  const p7Grade3 = generateSet({ patterns: ['P7'], difficulty: 3, count: 1, seed: 1, options: { kanjiLevel: 'grade3' } })[0];
+  const p7Adult = generateSet({ patterns: ['P7'], difficulty: 3, count: 1, seed: 1, options: { kanjiLevel: 'adult' } })[0];
+  assert.ok(p7Kana.textHtml.includes('出'));
+  assert.ok(p7Grade3.textHtml.includes('出発'));
+  assert.ok(p7Grade3.text.includes('出発して'));
+  assert.ok(p7Adult.textHtml.includes('所要時間'));
+});
+
+test('getText: 漢字レベル別の辞書引き', () => {
+  assert.equal(getText('nav.learn', 'kana'), 'まなぶ');
+  assert.equal(getText('nav.learn', 'grade3'), '学ぶ');
+  assert.equal(getText('nav.learn', 'adult'), '学ぶ');
+
+  assert.equal(getText('practice.diff.1', 'kana'), 'やさしい');
+  assert.equal(getText('practice.diff.1', 'grade3'), '初級');
+  assert.equal(getText('practice.diff.1', 'adult'), '初級');
+
+  assert.equal(getText('movement.speed', 'kana'), 'はやさ');
+  assert.equal(getText('movement.speed', 'adult'), '速度');
 });

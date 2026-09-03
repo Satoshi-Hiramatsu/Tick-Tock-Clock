@@ -7,6 +7,8 @@ export const P9 = {
   id: 'P9',
   name: 'じかんと ふん',
   desc: '1じかん = 60ぷん の かんけい',
+  names: { kana: 'じかんと ふん', grade3: '時間と 分', adult: '単位の変換（時間 ⇄ 分）' },
+  descs: { kana: '1じかん = 60ぷん の かんけい', grade3: '1時間 = 60分の かん係', adult: '1時間＝60分の単位変換の計算' },
   answerModes: ['choice', 'input'],
   generate(rng, o) {
     const hours = rng.int(1, Math.max(1, Math.min(3, o.maxHours)));

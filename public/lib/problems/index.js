@@ -23,7 +23,7 @@ export const PRESETS = {
 
 export function optionsFor(difficulty, overrides = {}) {
   const preset = PRESETS[difficulty] || PRESETS[2];
-  return { ...preset, difficulty: Number(difficulty) || 2, ...overrides };
+  return { ...preset, difficulty: Number(difficulty) || 2, kanjiLevel: overrides.kanjiLevel || 'kana', ...overrides };
 }
 
 /** step の倍数を min 以上 max 以下で列挙する。 */
