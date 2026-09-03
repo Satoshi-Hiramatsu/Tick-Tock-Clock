@@ -7,9 +7,9 @@ import { addMinutes } from '../lib/time.js';
 import { saveSettings } from '../lib/storage.js';
 import { getText } from '../lib/text.js';
 
-const DELTAS = [5, 10, 30, 60];
+const DELTAS = [1, 5, 10, 30, 60];
 const START = { h: 15, m: 0 };
-const DRAG_STEP = 5;
+const DRAG_STEP = 1;
 
 function buttonRow(direction) {
   const sign = direction > 0 ? '+' : '−';

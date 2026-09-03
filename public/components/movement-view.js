@@ -310,6 +310,7 @@ export function createMovementView(
   }
 
   function finish() {
+    if (movement) draw(movement.total);
     playBtn.textContent = '↻';
     listeners.done.forEach((fn) => fn());
     settle(true);
