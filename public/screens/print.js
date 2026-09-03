@@ -65,7 +65,7 @@ export function renderPrint(root, { settings, params }) {
           <button type="submit" class="btn btn--primary">つくる</button>
           <button type="button" class="btn" data-action="print" ${state.seed ? '' : 'disabled'}>いんさつ / PDF</button>
         </div>
-        <p class="setup__note" data-seed>${state.seed ? `シード ${state.seed}（この URL を ひらくと おなじ プリントに なります）` : '「つくる」を おすと プレビューが でます。'}</p>
+        <p class="setup__note" data-seed>${state.seed ? `シード ${state.seed}（この URL を ひらくと おなじ プリントに なります）／ プレビューを クリックすると 大きく なります。` : '「つくる」を おすと プレビューが でます。'}</p>
       </form>
       <div class="print__preview">
         <div class="print__sheets" data-sheets></div>
@@ -114,31 +114,148 @@ export function renderPrint(root, { settings, params }) {
     location.hash = toHash(next);
   });
 
+  const zoom = createZoom();
+
   section.addEventListener('click', (e) => {
-    if (e.target.closest('[data-action=print]')) window.print();
+    if (e.target.closest('[data-action=print]')) {
+      window.print();
+      return;
+    }
+    const sheet = e.target.closest('.print__preview .sheet');
+    if (sheet) zoom.open(sheet);
+  });
+
+  section.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const sheet = e.target.closest('.print__preview .sheet');
+    if (!sheet) return;
+    e.preventDefault();
+    zoom.open(sheet);
   });
 
   const sheetsEl = section.querySelector('[data-sheets]');
-  if (state.seed) renderSheets(sheetsEl, state, settings);
-  const ro = fitSheets(section.querySelector('.print__preview'), sheetsEl);
-  return () => ro?.disconnect();
+  const preview = section.querySelector('.print__preview');
+  if (state.seed) {
+    renderSheets(sheetsEl, state, settings);
+    preview.classList.add('is-ready');
+  }
+  const fit = fitSheets(section, preview, sheetsEl);
+  return () => {
+    fit?.destroy();
+    zoom.close();
+  };
 }
 
-/** プレビューを画面幅に合わせて縮小する（印刷時は CSS で等倍に戻す）。 */
-function fitSheets(preview, sheetsEl) {
-  if (!globalThis.ResizeObserver) return null;
+/** プレビューを画面に合わせて縮小する（印刷時は CSS で等倍に戻す）。
+    ワイド画面では 1 枚がウィンドウの高さいっぱいに入る大きさにし、残りは枠の中でスクロールする。 */
+function fitSheets(section, preview, sheetsEl) {
   const apply = () => {
-    const available = preview.clientWidth;
-    const sheetWidth = sheetsEl.firstElementChild?.offsetWidth || 0;
-    if (!sheetWidth) return;
-    const scale = Math.min(1, available / sheetWidth);
+    const sheet = sheetsEl.firstElementChild;
+    if (!sheet) return;
+    sheetsEl.style.width = '';
+    sheetsEl.style.height = '';
+    const sheetWidth = sheet.offsetWidth;
+    const sheetHeight = sheet.offsetHeight;
+    if (!sheetWidth || !sheetHeight) return;
+    const wide = window.innerWidth > 760;
+    // .print は position: static なので、スクロール位置に関係なく同じ上端が得られる。
+    const top = section.getBoundingClientRect().top + window.scrollY;
+    const paneHeight = Math.max(360, window.innerHeight - top - 16);
+    preview.style.height = wide ? `${paneHeight}px` : '';
+    const scale = wide
+      ? Math.min(preview.clientWidth / sheetWidth, paneHeight / sheetHeight)
+      : Math.min(1, preview.clientWidth / sheetWidth);
     sheetsEl.style.setProperty('--scale', scale);
+    sheetsEl.style.width = `${sheetWidth * scale}px`;
     sheetsEl.style.height = `${sheetsEl.scrollHeight * scale}px`;
   };
-  const ro = new ResizeObserver(apply);
-  ro.observe(preview);
+  const ro = globalThis.ResizeObserver ? new ResizeObserver(apply) : null;
+  ro?.observe(preview);
+  window.addEventListener('resize', apply);
   apply();
-  return ro;
+  return {
+    destroy() {
+      ro?.disconnect();
+      window.removeEventListener('resize', apply);
+    },
+  };
+}
+
+/** プレビューのシートをクリックしたときの拡大表示。画面ぴったり ⇄ 等倍 を切り替えられる。 */
+function createZoom() {
+  let overlay = null;
+  let opener = null;
+  let mode = 'fit';
+
+  function layout() {
+    if (!overlay) return;
+    const sheet = overlay.querySelector('.sheet');
+    const stage = overlay.querySelector('[data-stage]');
+    const pad = 48;
+    const fit = Math.min(
+      (overlay.clientWidth - pad) / sheet.offsetWidth,
+      (overlay.clientHeight - pad) / sheet.offsetHeight,
+    );
+    const scale = mode === 'fit' ? fit : 1;
+    sheet.style.setProperty('--zoom', scale);
+    stage.style.width = `${sheet.offsetWidth * scale}px`;
+    stage.style.height = `${sheet.offsetHeight * scale}px`;
+    overlay.dataset.mode = mode;
+    overlay.querySelector('[data-zoom]').textContent = mode === 'fit' ? '等倍で みる' : '画面に あわせる';
+  }
+
+  function onKey(e) {
+    if (e.key === 'Escape') close();
+  }
+
+  function open(source) {
+    close();
+    opener = source;
+    mode = 'fit';
+    overlay = document.createElement('div');
+    overlay.className = 'print__zoom';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'プリントの プレビュー');
+    overlay.innerHTML = `
+      <div class="print__zoom-stage" data-stage></div>
+      <div class="print__zoom-bar">
+        <button type="button" class="btn" data-zoom>等倍で みる</button>
+        <button type="button" class="btn btn--primary" data-close>とじる</button>
+      </div>`;
+    const clone = source.cloneNode(true);
+    for (const attr of ['tabindex', 'role', 'aria-label']) clone.removeAttribute(attr);
+    overlay.querySelector('[data-stage]').appendChild(clone);
+    overlay.addEventListener('click', (e) => {
+      if (e.target.closest('[data-close]')) {
+        close();
+      } else if (e.target.closest('[data-zoom]') || e.target.closest('.sheet')) {
+        mode = mode === 'fit' ? 'full' : 'fit';
+        layout();
+      } else {
+        close();
+      }
+    });
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', layout);
+    layout();
+    overlay.querySelector('[data-close]').focus();
+  }
+
+  function close() {
+    if (!overlay) return;
+    overlay.remove();
+    overlay = null;
+    document.body.style.overflow = '';
+    document.removeEventListener('keydown', onKey);
+    window.removeEventListener('resize', layout);
+    opener?.focus();
+    opener = null;
+  }
+
+  return { open, close };
 }
 
 function renderSheets(container, state, settings) {
@@ -153,6 +270,9 @@ function renderSheets(container, state, settings) {
 function buildSheet(problems, { n, page, pages, answer, name, settings }) {
   const sheet = document.createElement('article');
   sheet.className = `sheet sheet--n${n} ${answer ? 'sheet--answer' : ''}`;
+  sheet.tabIndex = 0;
+  sheet.setAttribute('role', 'button');
+  sheet.setAttribute('aria-label', `${answer ? 'こたえ' : 'もんだい'}の プレビューを 大きく みる`);
   sheet.innerHTML = `
     <header class="sheet__head">
       <h2 class="sheet__title">とけいの ${answer ? 'こたえ' : 'テスト'}${pages > 1 ? ` <small>${page + 1} / ${pages}</small>` : ''}</h2>

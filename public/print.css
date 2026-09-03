@@ -49,6 +49,22 @@
   overflow: hidden;
 }
 
+/* 生成後のプレビューはウィンドウの高さいっぱいの枠にし、
+   下にスクロールしても見えつづけるように貼り付ける（高さは JS で算出）。 */
+@media (min-width: 761px) {
+  body[data-route='print'] .app {
+    max-width: 1280px;
+  }
+
+  .print__preview.is-ready {
+    position: sticky;
+    top: var(--space-md);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+  }
+}
+
 .print__sheets {
   --scale: 1;
   transform: scale(var(--scale));
@@ -56,6 +72,11 @@
   display: grid;
   gap: 12mm;
   width: 210mm;
+  margin: 0 auto;
+}
+
+.print__preview .sheet {
+  cursor: zoom-in;
 }
 
 .print__toolbar {
@@ -290,6 +311,40 @@
   display: none;
 }
 
+/* ===== プレビューの拡大表示（クリックで ひらく） ===== */
+.print__zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  overflow: auto;
+  padding: var(--space-md);
+  background: rgba(17, 17, 17, 0.72);
+}
+
+/* margin: auto は はみ出したときも 端が切れない中央ぞろえ。 */
+.print__zoom-stage {
+  margin: auto;
+}
+
+.print__zoom .sheet {
+  transform: scale(var(--zoom, 1));
+  transform-origin: top left;
+  cursor: zoom-in;
+}
+
+.print__zoom[data-mode='full'] .sheet {
+  cursor: zoom-out;
+}
+
+.print__zoom-bar {
+  position: fixed;
+  top: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  gap: var(--tap-gap);
+}
+
 /* ===== 印刷 ===== */
 @page {
   size: A4 portrait;
@@ -318,11 +373,18 @@
   }
 
   .print__preview {
+    position: static;
     overflow: visible;
+    height: auto !important;
+  }
+
+  .print__zoom {
+    display: none !important;
   }
 
   .print__sheets {
     transform: none !important;
+    width: 210mm !important;
     height: auto !important;
     gap: 0;
   }
