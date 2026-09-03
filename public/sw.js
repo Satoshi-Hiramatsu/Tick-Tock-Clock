@@ -2,7 +2,7 @@
 // 同一オリジンは「キャッシュ優先＋裏で更新」、フォント等の外部は「ネットワーク優先、失敗時キャッシュ」。
 
 // 画面資産を変えて公開するときは VERSION を上げる。旧キャッシュが破棄され、開いているページは再読み込みされる（app.js）。
-const VERSION = 'ttc-v5';
+const VERSION = 'ttc-v6';
 const PRECACHE = [
   './',
   './index.html',
