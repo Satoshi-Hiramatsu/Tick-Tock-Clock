@@ -1041,12 +1041,50 @@ ruby {
 
 rt {
   font-size: 0.5em;
-  font-weight: 400;
-  color: var(--c-ink-2);
+  font-weight: 500;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.85;
 }
 
 .no-furigana rt {
   display: none;
+}
+
+/* ボタン・チップ・トグル・見出し等でのルビ垂直位置補正 */
+/* ルビ（rt）を行の高さ計算から外し、親文字（漢字・かな）の上下中央揃えを維持する */
+.btn ruby,
+.chip ruby,
+.toggle ruby,
+.pattern-chip ruby,
+.btn-row__title ruby,
+.teach__summary ruby,
+.teach__label ruby,
+.counter__label ruby,
+legend ruby {
+  display: inline-block;
+  position: relative;
+  vertical-align: baseline;
+  text-align: center;
+}
+
+.btn rt,
+.chip rt,
+.toggle rt,
+.pattern-chip rt,
+.btn-row__title rt,
+.teach__summary rt,
+.teach__label rt,
+.counter__label rt,
+legend rt {
+  position: absolute;
+  top: -0.72em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.46em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
 }
 
 /* ===== ボタンの種類 ===== */
