@@ -1,6 +1,6 @@
 {
   "name": "tick-tock-clock",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "小学2年生向け アナログ時計・時刻と時間の学習アプリ（Cloudflare Workers）",
   "private": true,
   "type": "module",

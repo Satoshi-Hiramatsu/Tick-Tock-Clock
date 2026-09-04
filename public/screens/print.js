@@ -9,10 +9,14 @@ const COUNTS = [6, 8, 10];
 const OUTPUTS = { both: '問題と解答', q: '問題のみ', a: '解答のみ' };
 const DIFFICULTY_LABELS = { 1: '初級（やさしい）', 2: '標準（ふつう）', 3: '上級（むずかしい）', 4: '発展' };
 
+const ICON_GENERATE = `<svg class="btn-action__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>`;
+const ICON_PRINT = `<svg class="btn-action__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>`;
+
 function readParams(params, settings) {
   const d = Number(params.get('d')) || settings.lastDifficulty || 2;
   const preset = PRESETS[d];
   const p = (params.get('p') || '').split(',').filter((id) => PATTERNS[id] && preset.patterns.includes(id));
+  const rawSeed = Number(params.get('seed'));
   return {
     d,
     p: p.length ? p : preset.patterns,
@@ -20,7 +24,7 @@ function readParams(params, settings) {
     pages: Math.min(10, Math.max(1, Number(params.get('pages')) || 1)),
     out: OUTPUTS[params.get('out')] ? params.get('out') : 'both',
     name: params.get('name') !== '0',
-    seed: Number(params.get('seed')) || 0,
+    seed: rawSeed || randomSeed(),
   };
 }
 
@@ -62,16 +66,31 @@ export function renderPrint(root, { settings, params }) {
           </div>
         </fieldset>
         <div class="print__buttons">
-          <button type="submit" class="btn btn--primary">プリント作成</button>
-          <button type="button" class="btn" data-action="print" ${state.seed ? '' : 'disabled'}>印刷 / PDF保存</button>
+          <button type="submit" class="btn-action btn-action--generate">
+            ${ICON_GENERATE}
+            <span>問題を生成</span>
+          </button>
+          <button type="button" class="btn-action btn-action--print" data-action="print">
+            ${ICON_PRINT}
+            <span>印刷 / PDF</span>
+          </button>
         </div>
-        <p class="setup__note" data-seed>${state.seed ? `シード ${state.seed}（同一URLで再印刷可能）／ プレビューをクリックすると拡大表示されます。` : '「プリント作成」を押すとプレビューが表示されます。'}</p>
+        <p class="setup__note" data-seed>シード ${state.seed}（同一URLで再印刷可能）／ プレビューをクリックすると拡大表示されます。</p>
       </form>
       <div class="print__preview">
         <div class="print__sheets" data-sheets></div>
       </div>
-      <div class="print__toolbar">
-        <button type="button" class="btn btn--primary" data-action="print" ${state.seed ? '' : 'disabled'}>印刷 / PDF保存</button>
+      <div class="print__toolbar" aria-label="プリント操作">
+        <div class="print__toolbar-inner">
+          <button type="button" class="btn-action btn-action--generate" data-action="generate">
+            ${ICON_GENERATE}
+            <span>問題を生成</span>
+          </button>
+          <button type="button" class="btn-action btn-action--print" data-action="print">
+            ${ICON_PRINT}
+            <span>印刷 / PDF</span>
+          </button>
+        </div>
       </div>
     </section>`;
 
@@ -117,6 +136,14 @@ export function renderPrint(root, { settings, params }) {
   const zoom = createZoom();
 
   section.addEventListener('click', (e) => {
+    if (e.target.closest('[data-action=generate]')) {
+      if (typeof form.requestSubmit === 'function') {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event('submit', { cancelable: true }));
+      }
+      return;
+    }
     if (e.target.closest('[data-action=print]')) {
       window.print();
       return;
@@ -157,7 +184,7 @@ function fitSheets(section, preview, sheetsEl) {
     const sheetWidth = sheet.offsetWidth;
     const sheetHeight = sheet.offsetHeight;
     if (!sheetWidth || !sheetHeight) return;
-    const wide = window.innerWidth > 760;
+    const wide = window.innerWidth > 1024;
     const top = section.getBoundingClientRect().top + window.scrollY;
     const paneHeight = Math.max(360, window.innerHeight - top - 16);
     preview.style.height = wide ? `${paneHeight}px` : '';
